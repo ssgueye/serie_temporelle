@@ -14,5 +14,5 @@ public enum Privilege {
         return privilegeAcronym;
     }
 
-    
+
 }

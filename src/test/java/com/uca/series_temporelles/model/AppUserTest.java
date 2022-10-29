@@ -1,95 +1,101 @@
 package com.uca.series_temporelles.model;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.assertj.core.api.Assertions.*;
 
-public class AppUserTest {
+class AppUserTest {
 
     @Nested
-    public class successCreationTest{
+    class UserSuccessCreationTests{
         @Test()
-        public void createUserWithLowerCaseLetters(){
-            //Given
-            AppUser appUser = new AppUser("pseudo");
+        void createUserWithLowerCaseLetters(){
 
-            //Then
-            assertThat(appUser);
+            assertThat(new AppUser("pseudo")).isNotNull();
+
         }
 
         @Test
-        public void createUserWithUppercaseLetters(){
+        void createUserWithUppercaseLetters(){
+
+            assertThat(new AppUser("PSEUDO")).isNotNull();
+        }
+
+        @Test
+        void VerifyIfPseudoIsConvertedIntoLowerCases(){
             //Given
             AppUser appUser = new AppUser("PSEUDO");
 
             //Then
-            assertThat(appUser);
+            assertEquals("pseudo", appUser.pseudo);
         }
 
 
         @Test
-        public void createUserWithOnlyNumericCharacters(){
-            //Given
-            AppUser appUser = new AppUser("123456");
+        void createUserWithOnlyNumericCharacters(){
 
-            //Then
-            assertThat(appUser);
+            assertThat(new AppUser("123456")).isNotNull();
         }
 
         @Test
-        public void createUserWithOnlySpecialCharacters(){
-            //Given
-            AppUser appUser = new AppUser("#_@'é$*%");
+        void createUserWithOnlySpecialCharacters(){
+            assertThat(new AppUser("#_@'é$*%")).isNotNull();
 
-            //Then
-            assertThat(appUser);
         }
     }
 
     @Nested()
-    public class failCreationTest{
+    class UserFailCreationTests{
         @Test
-        public void createUserWithANullPseudo(){
+        void canNotCreateUserWithANullPseudo(){
 
-            //Given
-            AppUser appUser = new AppUser();
-
-            //Then
-            assertThrows(IllegalArgumentException.class, ()-> appUser.setPseudo(null));
+            assertThrows(IllegalArgumentException.class, ()-> new AppUser(null));
         }
 
         @Test
-        public void createUserWithAnEmptyPseudo(){
+        void canNotCreateUserWithAnEmptyPseudo(){
 
-            //Given
-            AppUser appUser = new AppUser();
-
-            //Then
-            assertThrows(IllegalArgumentException.class, ()-> appUser.setPseudo(""));
+            assertThrows(IllegalArgumentException.class, ()-> new AppUser(""));
         }
 
         @Test
-        public void createUserWithBlankPseudo(){
+        void canNotCreateUserWithBlankPseudo(){
 
-            //Given
-            AppUser appUser = new AppUser();
-
-            //Then
-            assertThrows(IllegalArgumentException.class, ()-> appUser.setPseudo(" "));
+            assertThrows(IllegalArgumentException.class, ()-> new AppUser(" "));
         }
 
         @Test
-        public void createUserWithPseudoContainingWhiteSpaces(){
+        void canNotCreateUserWithPseudoContainingWhiteSpaces(){
 
-            //Given
-            AppUser appUser = new AppUser();
-
-            //Then
-            assertThrows(IllegalArgumentException.class, ()-> appUser.setPseudo("mon pseudo"));
+            assertThrows(IllegalArgumentException.class, ()-> new AppUser("mon pseudo"));
         }
     }
 
+    @Nested
+    class SerializeAppUser{
+        private final String JSON = "{\"pseudo\":\"test\"}";
+
+        @Test
+        void mustSerializeToJson() throws JsonProcessingException {
+            AppUser appUser = new AppUser("test");
+            var mapper = new ObjectMapper();
+
+            assertThat(mapper.writeValueAsString(appUser)).isEqualTo(JSON);
+        }
+
+        @Test
+        void mustDeserializeFromJson() throws JsonProcessingException {
+            var mapper = new ObjectMapper();
+            AppUser appUser = mapper.readValue(JSON, AppUser.class);
+
+            assertThat(appUser).isNotNull();
+            assertThat(appUser.pseudo).isEqualTo("test");
+
+        }
+    }
 
 }
