@@ -11,13 +11,14 @@ import static org.assertj.core.api.Assertions.*;
 
 class UserSerieTest {
 
+    private final static AppUser appUser = new AppUser("mon_pseudo");
+    private final static Serie serie = new Serie("my title", "my desc");
+
     @Nested
     class UserSerieSuccessCreationTests{
         @Test
         void createUserSerieWithAllArguments(){
 
-            AppUser appUser = new AppUser("mon_pseudo");
-            Serie serie = new Serie("my title", "my desc");
             var userSerie = new UserSerie(Privilege.READONLY, true, appUser, serie);
 
             assertThat(userSerie).isNotNull();
@@ -30,17 +31,11 @@ class UserSerieTest {
         @Test
         void canNotCreateUserSerieWithNullValueInPrivilege(){
 
-            AppUser appUser = new AppUser("mon_pseudo");
-            Serie serie = new Serie("my title", "my desc");
-
             assertThrows(IllegalArgumentException.class, ()-> new UserSerie(null, true, appUser, serie));
         }
 
         @Test
         void canNotCreateUserSerieWithNullValueInIsOwner(){
-
-            AppUser appUser = new AppUser("mon_pseudo");
-            Serie serie = new Serie("my title", "my desc");
 
             assertThrows(IllegalArgumentException.class, ()-> new UserSerie(Privilege.WRITE_READ, null, appUser, serie));
         }
@@ -48,14 +43,12 @@ class UserSerieTest {
         @Test
         void canNotCreateUserSerieWithNullValueInAppUser(){
 
-            Serie serie = new Serie("my title", "my desc");
             assertThrows(IllegalArgumentException.class, ()-> new UserSerie(Privilege.WRITE_READ, true, null, serie));
         }
 
         @Test
         void canNotCreateUserSerieWithNullValueInSerie(){
 
-            AppUser appUser = new AppUser("mon_pseudo");
             assertThrows(IllegalArgumentException.class, ()-> new UserSerie(Privilege.WRITE_READ, true, appUser, null));
         }
     }
@@ -63,17 +56,20 @@ class UserSerieTest {
     @Nested
     class SerializeUserSerie{
 
+        private final static String JSON = "{\"privilege\":\"WRITE_READ\"}";
         @Test
         void mustSerializeToJson() throws JsonProcessingException {
-            AppUser appUser = new AppUser("test");
-            Serie serie = new Serie("my title", "my desc");
+
             UserSerie userSerie = new UserSerie(Privilege.WRITE_READ, true, appUser, serie);
 
             var mapper = new ObjectMapper();
 
-            String JSON = "{\"privilege\":\"WRITE_READ\"}";
+
             assertThat(mapper.writeValueAsString(userSerie)).isEqualTo(JSON);
         }
+
+        //Deserialization
+        //TODO
 
     }
 

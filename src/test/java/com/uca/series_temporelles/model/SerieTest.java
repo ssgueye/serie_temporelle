@@ -17,7 +17,11 @@ public class SerieTest {
 
         @Test
         public void createASerieWithTitleAndDescription(){
-            assertThat(new Serie("My new serie", "This is my new daily serie")).isNotNull();
+            Serie serie = new Serie("My new serie", "This is my new daily serie");
+            assertThat(serie).isNotNull();
+
+            //verify that lustupdatedDate is not null
+            assertThat(serie.lastUpdatedDate).isNotNull();
         }
 
         @Test

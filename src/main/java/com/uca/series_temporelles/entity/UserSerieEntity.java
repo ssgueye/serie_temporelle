@@ -1,8 +1,6 @@
 package com.uca.series_temporelles.entity;
 
 import com.uca.series_temporelles.enumerations.Privilege;
-import com.uca.series_temporelles.model.AppUser;
-import com.uca.series_temporelles.model.Serie;
 
 import javax.persistence.*;
 
@@ -23,7 +21,7 @@ public class UserSerieEntity {
     public boolean isOwner;
 
     @ManyToOne(fetch = FetchType.EAGER, optional = false)
-    @JoinColumn(name = "ID_USER")
+    @JoinColumn(name = "USER_PSEUDO")
     public AppUserEntity appUser;
 
     @ManyToOne(fetch = FetchType.EAGER, optional = false)
