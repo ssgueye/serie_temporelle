@@ -2,7 +2,7 @@ package com.uca.series_temporelles.enumerations;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public enum Privilege {
+public enum Permission {
     @JsonProperty("WRITE_READ")
     WRITE_READ("WR"),
     @JsonProperty("READONLY")
@@ -10,7 +10,7 @@ public enum Privilege {
 
     private String privilegeAcronym;
 
-    Privilege(String privilegeAcronym) {
+    Permission(String privilegeAcronym) {
         this.privilegeAcronym = privilegeAcronym;
     }
 

@@ -2,7 +2,7 @@ package com.uca.series_temporelles.model;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.uca.series_temporelles.enumerations.Privilege;
+import com.uca.series_temporelles.enumerations.Permission;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
@@ -19,17 +19,17 @@ class UserSerieTest {
         @Test
         void createUserSerieWithAllArguments(){
 
-            var userSerie = new UserSerie(Privilege.READONLY, true, appUser, serie);
+            var userSerie = new UserSerie(Permission.READONLY, true, appUser, serie);
 
             assertThat(userSerie).isNotNull();
-            assertEquals(Privilege.WRITE_READ, userSerie.privilege);//Testing if Privilege is "WRITE_READ" when isOwner is "True" and even A "READONLY" value is given
+            assertEquals(Permission.WRITE_READ, userSerie.permission);//Testing if Permission is "WRITE_READ" when isOwner is "True" and even A "READONLY" value is given
         }
     }
 
     @Nested
     class UserSerieFailCreationTests{
         @Test
-        void canNotCreateUserSerieWithNullValueInPrivilege(){
+        void canNotCreateUserSerieWithNullValueInPermission(){
 
             assertThrows(IllegalArgumentException.class, ()-> new UserSerie(null, true, appUser, serie));
         }
@@ -37,30 +37,30 @@ class UserSerieTest {
         @Test
         void canNotCreateUserSerieWithNullValueInIsOwner(){
 
-            assertThrows(IllegalArgumentException.class, ()-> new UserSerie(Privilege.WRITE_READ, null, appUser, serie));
+            assertThrows(IllegalArgumentException.class, ()-> new UserSerie(Permission.WRITE_READ, null, appUser, serie));
         }
 
         @Test
         void canNotCreateUserSerieWithNullValueInAppUser(){
 
-            assertThrows(IllegalArgumentException.class, ()-> new UserSerie(Privilege.WRITE_READ, true, null, serie));
+            assertThrows(IllegalArgumentException.class, ()-> new UserSerie(Permission.WRITE_READ, true, null, serie));
         }
 
         @Test
         void canNotCreateUserSerieWithNullValueInSerie(){
 
-            assertThrows(IllegalArgumentException.class, ()-> new UserSerie(Privilege.WRITE_READ, true, appUser, null));
+            assertThrows(IllegalArgumentException.class, ()-> new UserSerie(Permission.WRITE_READ, true, appUser, null));
         }
     }
 
     @Nested
     class SerializeUserSerie{
 
-        private final static String JSON = "{\"privilege\":\"WRITE_READ\"}";
+        private final static String JSON = "{\"permission\":\"WRITE_READ\"}";
         @Test
         void mustSerializeToJson() throws JsonProcessingException {
 
-            UserSerie userSerie = new UserSerie(Privilege.WRITE_READ, true, appUser, serie);
+            UserSerie userSerie = new UserSerie(Permission.WRITE_READ, true, appUser, serie);
 
             var mapper = new ObjectMapper();
 

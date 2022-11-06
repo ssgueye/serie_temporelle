@@ -1,6 +1,6 @@
 package com.uca.series_temporelles.entity;
 
-import com.uca.series_temporelles.enumerations.Privilege;
+import com.uca.series_temporelles.enumerations.Permission;
 
 import javax.persistence.*;
 
@@ -15,7 +15,7 @@ public class UserSerieEntity {
 
     @Column(name = "PRIVILEGE")
     @Enumerated(EnumType.STRING)
-    public Privilege privilege;
+    public Permission permission;
 
     @Column(name = "OWNER")
     public boolean isOwner;
