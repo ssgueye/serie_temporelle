@@ -1,5 +1,6 @@
 package com.uca.series_temporelles.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import javax.persistence.*;
@@ -10,7 +11,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "EVENT")
-public class Event {
+public class Event implements Serializable{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,17 +24,10 @@ public class Event {
     private String eventValue;
     @Column(name = "LAST_UPDATE_DATE")
     private LocalDateTime lastUpdateDate;
-    @Column(name = "TAG")
-    @ManyToMany(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
-    @JoinTable(name = "EVENTS_TAGS",
-            joinColumns = @JoinColumn(name = "idEvent"),
-            inverseJoinColumns = @JoinColumn(name = "idTag"))
-    private List<Tag> tags = new ArrayList<Tag>();
 
-    public Event(LocalDateTime eventDate, String eventValue, List<Tag> tags) {
+    public Event(LocalDateTime eventDate, String eventValue) {
         this.eventDate = eventDate;
         this.eventValue = eventValue;
-        this.tags = tags;
     }
     public Event() {
     }
@@ -66,13 +60,6 @@ public class Event {
         return lastUpdateDate;
     }
 
-    public List<Tag> getTags() {
-        return tags;
-    }
-
-    public void setTags(List<Tag> tags) {
-        this.tags = tags;
-    }
 
 }
 

@@ -9,7 +9,7 @@ public class AppUser {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column
-    private Long id;
+    private Long idUser;
     @Column(nullable = false)
     private String pseudo;
 
@@ -20,7 +20,7 @@ public class AppUser {
     }
 
     public Long getId() {
-        return id;
+        return idUser;
     }
 
     public String getPseudo() {

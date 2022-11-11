@@ -19,8 +19,8 @@ public class EventController {
     public EventRepository eventRepository;
 
     @GetMapping("/events")
-    public List<Event> getAllEvent(){
-        return eventRepository.findAll();
+    public ResponseEntity<List<Event>> getAllEvent(){
+        return ResponseEntity.ok(eventRepository.findAll());
     }
     @GetMapping("/event/{id}")
     public Event getEvent(@PathVariable Long id){

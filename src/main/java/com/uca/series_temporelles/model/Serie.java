@@ -6,14 +6,11 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "SERIE")
 public class Serie {
-    public Long getId() {
-        return id;
-    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ID")
-    private Long id;
+    private Long idSerie;
     @Column(name = "TITLE", nullable = false)
     private String title;
     @Column(name = "DESCRIPTION", nullable = true)
@@ -26,6 +23,10 @@ public class Serie {
         this.description = description;
     }
     public Serie() {
+    }
+
+    public Long getId() {
+        return idSerie;
     }
 
     public String getTitle() {
