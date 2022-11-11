@@ -1,7 +1,10 @@
 package com.uca.series_temporelles.controller;
 
 import com.uca.series_temporelles.model.Serie;
+import com.uca.series_temporelles.model.UserSerie;
+import com.uca.series_temporelles.repository.AppUserRepository;
 import com.uca.series_temporelles.repository.SerieRepository;
+import com.uca.series_temporelles.repository.UserSerieRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,6 +19,10 @@ public class SerieController {
 
     @Autowired
     private SerieRepository serieRepository;
+    @Autowired
+    private AppUserRepository appUserRepository;
+    @Autowired
+    private UserSerieRepository userSerieRepository;
 
     @GetMapping("/series")
     public List<Serie> getAllSeries(){
@@ -25,11 +32,17 @@ public class SerieController {
     public Serie getSerie(@PathVariable("id") Long id){
         return serieRepository.findById(id).orElseThrow(()->new IllegalArgumentException());
     }
-    @PostMapping("/serie")
-    public ResponseEntity<Serie> saveSerie(@RequestBody Serie serie){
+    @PostMapping("/user/{id}/create/serie")
+    public ResponseEntity<Serie> saveSerie(@RequestBody Serie serie, @PathVariable("id") Long idUser){
+        UserSerie userSerie = new UserSerie();
         serie.setLastUpdatedDate(LocalDateTime.now());
         Serie serieSaved = serieRepository.save(serie);
         String url = "/serie/"+serieSaved.getId();
+        userSerie.setSerie(serieSaved);
+        userSerie.setUser(appUserRepository.findById(idUser).orElseThrow(()-> new IllegalArgumentException()));
+        userSerie.setOwner(true);
+        userSerie.setPrivilege("Read & Write");
+        userSerieRepository.save(userSerie);
         return ResponseEntity.created(URI.create(url)).body(serieSaved);
     }
     @DeleteMapping("/serie/{id}")
