@@ -1,5 +1,6 @@
 package com.uca.series_temporelles.service;
 
+import com.uca.series_temporelles.entity.EventEntity;
 import com.uca.series_temporelles.entity.UserSerieEntity;
 import com.uca.series_temporelles.enumerations.Permission;
 import com.uca.series_temporelles.exception.NoAccessDataException;
@@ -7,6 +8,7 @@ import com.uca.series_temporelles.exception.ResourceNotFoundException;
 import com.uca.series_temporelles.model.AppUser;
 import com.uca.series_temporelles.model.Serie;
 import com.uca.series_temporelles.model.UserSerie;
+import com.uca.series_temporelles.repository.EventRepository;
 import com.uca.series_temporelles.repository.SerieRepository;
 import com.uca.series_temporelles.repository.UserSerieRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,24 +36,29 @@ public class UserSerieService {
     private final UserSerieRepository userSerieRepository;
     private final AppUserService appUserService;
     private final SerieService serieService;
+    private final EventRepository eventRepository;
 
     @Autowired
     public UserSerieService(SerieRepository serieRepository,
                         UserSerieRepository userSerieRepository,
                         AppUserService appUserService,
-                            SerieService serieService) {
+                            SerieService serieService,
+                            EventRepository eventRepository) {
         this.serieRepository = serieRepository;
         this.userSerieRepository = userSerieRepository;
         this.appUserService = appUserService;
         this.serieService = serieService;
+        this.eventRepository = eventRepository;
     }
 
     public Iterable<UserSerie> getAllUserSeries(String pseudo_user){
+
         return StreamUtils.createStreamFromIterator(
                 userSerieRepository.
                         getUserSerieEntitiesByAppUserPseudo(pseudo_user).iterator()).
                 map(this::toUserSerie).collect(Collectors.toList());
     }
+
 
     public UserSerie createSerie(String pseudo_user, Serie serie){
 
@@ -140,6 +147,9 @@ public class UserSerieService {
                 userSerieRepository.deleteAll(userSerieEntities);
                 //And after we delete the serie in SERIE TABLE
                 serieRepository.deleteById(serie_id);
+                //We will delete also the events that was linked to that serie
+                Iterable<EventEntity> eventsToDelete = eventRepository.getEventEntitiesBySerieId(serie_id);
+                eventRepository.deleteAll(eventsToDelete);
             }
             else {
                 throw new NoAccessDataException("User "+pseudo+" doesn't have the right to share Serie"+serie_id);
