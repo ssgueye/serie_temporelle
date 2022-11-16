@@ -2,6 +2,8 @@ package com.uca.series_temporelles.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -22,13 +24,22 @@ public class Event implements Serializable{
     private LocalDateTime eventDate;
     @Column(name = "EVENT_VALUE")
     private String eventValue;
+    @Column(name = "COMMENT")
+    private String comment;
     @Column(name = "LAST_UPDATE_DATE")
     private LocalDateTime lastUpdateDate;
 
-    public Event(LocalDateTime eventDate, String eventValue) {
+    @ManyToOne
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    @JoinColumn(name = "idSerie")
+    private Serie serie;
+
+    public Event(LocalDateTime eventDate, String eventValue, String comment) {
         this.eventDate = eventDate;
         this.eventValue = eventValue;
+        this.comment = comment;
     }
+
     public Event() {
     }
 
@@ -60,6 +71,20 @@ public class Event implements Serializable{
         return lastUpdateDate;
     }
 
+    public String getComment() {
+        return comment;
+    }
 
+    public void setComment(String comment) {
+        this.comment = comment;
+    }
+
+    public Serie getSerie() {
+        return serie;
+    }
+
+    public void setSerie(Serie serie) {
+        this.serie = serie;
+    }
 }
 

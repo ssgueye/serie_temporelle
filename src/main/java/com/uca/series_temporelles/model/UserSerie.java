@@ -1,5 +1,8 @@
 package com.uca.series_temporelles.model;
 
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
 import javax.persistence.*;
 import java.io.Serializable;
 
@@ -17,11 +20,13 @@ public class UserSerie implements Serializable {
     @Column(name = "IS_OWNER")
     private boolean isOwner;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
+    @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "idUser")
     private AppUser user;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
+    @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "idSerie")
     private Serie serie;
 
