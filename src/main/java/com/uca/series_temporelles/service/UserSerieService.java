@@ -1,16 +1,19 @@
 package com.uca.series_temporelles.service;
 
+import com.uca.series_temporelles.entity.AppUserEntity;
 import com.uca.series_temporelles.entity.EventEntity;
+import com.uca.series_temporelles.entity.SerieEntity;
 import com.uca.series_temporelles.entity.UserSerieEntity;
 import com.uca.series_temporelles.enumerations.Permission;
+import com.uca.series_temporelles.exception.DuplicationException;
 import com.uca.series_temporelles.exception.NoAccessDataException;
 import com.uca.series_temporelles.exception.ResourceNotFoundException;
-import com.uca.series_temporelles.model.AppUser;
 import com.uca.series_temporelles.model.Serie;
 import com.uca.series_temporelles.model.UserSerie;
 import com.uca.series_temporelles.repository.EventRepository;
 import com.uca.series_temporelles.repository.SerieRepository;
 import com.uca.series_temporelles.repository.UserSerieRepository;
+import org.hibernate.criterion.Order;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.util.StreamUtils;
@@ -51,53 +54,52 @@ public class UserSerieService {
         this.eventRepository = eventRepository;
     }
 
-    public Iterable<UserSerie> getAllUserSeries(String pseudo_user){
+    public Iterable<UserSerieEntity> getAllUserSeries(String pseudo_user){
 
         return StreamUtils.createStreamFromIterator(
                 userSerieRepository.
-                        getUserSerieEntitiesByAppUserPseudo(pseudo_user).iterator()).
-                map(this::toUserSerie).collect(Collectors.toList());
+                        getUserSerieEntitiesByAppUserPseudo(pseudo_user).iterator()).collect(Collectors.toList());
+    }
+
+    public UserSerieEntity getOne(String pseudo, Long serie_id){
+
+        UserSerieEntity userSerie = userSerieRepository.getUserSerieEntityByUserPseudoAndSerieId(pseudo, serie_id);
+
+        return userSerie;
     }
 
 
-    public UserSerie createSerie(String pseudo_user, Serie serie){
+    public UserSerieEntity createSerie(String pseudo_user, Serie serie){
 
         Assert.hasText(pseudo_user, "pseudo can not be null/empty/blank");
         Assert.notNull(serie, "Serie can not be null");
 
-        AppUser appUser = appUserService.getOne(pseudo_user);
-        //Save the Serie
-        serieRepository.save(serieService.toSerieEntity(serie));
+        AppUserEntity appUser = appUserService.getOne(pseudo_user);
 
         //Create and save the UserSerie
-        UserSerie userSerie = new UserSerie(Permission.WRITE_READ, true, appUser, serie);
+        //The serie will be saved also
+        UserSerie userSerie = new UserSerie(Permission.WRITE_READ, true, appUserService.toUser(appUser), serie);
 
-        return toUserSerie(userSerieRepository.save(toUserSerieEntity(userSerie)));
+        return userSerieRepository.save(toUserSerieEntity(userSerie));
+
     }
 
-    public Serie updateSerie(Long serie_id, String pseudo_user, Serie serie){
+    public SerieEntity updateSerie(Long serie_id, String pseudo_user, Serie serie){
 
         Assert.hasText(pseudo_user, "pseudo can not be null/empty/blank");
         Assert.notNull(serie_id, "Serie_id can not be null");
 
         UserSerieEntity userSerieEntity = userSerieRepository.
-                getUserSerieEntitiesByAppUserPseudoAndSerieId(pseudo_user, serie_id);
+                getUserSerieEntityByUserPseudoAndSerieId(pseudo_user, serie_id);
         if(userSerieEntity.isOwner || userSerieEntity.permission.equals(Permission.WRITE_READ)){
-            Serie updatedSerie = serieService.
-                    toSerie(serieRepository.findById(serie_id).
-                                    orElseThrow(()-> new ResourceNotFoundException("Serie "+serie_id+" not found")));
+            SerieEntity updatedSerie = serieRepository.findById(serie_id).
+                                    orElseThrow(()-> new ResourceNotFoundException("Serie "+serie_id+" not found"));
 
             updatedSerie.title = serie.title;
             updatedSerie.description = serie.description;
             updatedSerie.lastUpdatedDate = LocalDateTime.now();
 
-            Iterable<UserSerieEntity> userSerieEntities = userSerieRepository.getUserSerieEntitiesBySerieId(serie_id);
-            for(UserSerieEntity userSerie : userSerieEntities){
-                userSerie.serie = serieService.toSerieEntity(updatedSerie);
-                userSerieRepository.save(userSerie);
-            }
-
-            return serieService.toSerie(serieRepository.save(serieService.toSerieEntity(updatedSerie)));
+            return serieRepository.save(updatedSerie);
 
         }
         else{
@@ -109,28 +111,42 @@ public class UserSerieService {
     public UserSerieEntity shareSerie(Long serie_id,
                                       String pseudoOwner,
                                       String pseudoNotOwner,
-                                      UserSerieEntity userSerieEntity){
+                                      Permission permission){
 
         Assert.notNull(serie_id, "Serie id can not be null");
         Assert.hasText(pseudoOwner, "pseudo can not be null/empty/blank");
         Assert.hasText(pseudoNotOwner, "pseudo can not be null/empty/blank");
-        Assert.notNull(userSerieEntity, "UserSerieEntity can not be null");
-        Assert.notNull(userSerieEntity.permission, "Permission is mandatory");
+        Assert.notNull(permission, "Permission is mandatory");
 
-        UserSerieEntity userSerie = userSerieRepository.getUserSerieEntitiesByAppUserPseudoAndSerieId(pseudoOwner, serie_id);
-        Assert.notNull(userSerie, "UserSerie can not be null");
+        UserSerieEntity userOwner = userSerieRepository.getUserSerieEntityByUserPseudoAndSerieId(pseudoOwner, serie_id);
+        Assert.notNull(userOwner, "UserSerie can not be null");
+        System.out.println(userOwner);
+        if(userOwner.isOwner){
+            //avoid duplications
+            UserSerieEntity existingUserSerie = userSerieRepository.getUserSerieEntityByUserPseudoAndSerieId(pseudoNotOwner, serie_id);
+            //If the user shares the serie to the user for the first time
+            if(!pseudoNotOwner.equals(pseudoOwner) && existingUserSerie == null){
+                UserSerieEntity sharedSerie = new UserSerieEntity();
+                sharedSerie.permission = permission;
+                sharedSerie.isOwner = false;
+                sharedSerie.serie = serieRepository.findById(serie_id).orElseThrow(()->new ResourceNotFoundException("Serie "+serie_id+" is not found"));
+                sharedSerie.appUser= appUserService.getOne(pseudoNotOwner);
 
-        if(userSerie.isOwner){
-            UserSerieEntity sharedSerie = new UserSerieEntity();
-            sharedSerie.permission = userSerieEntity.permission;
-            sharedSerie.isOwner = false;
-            sharedSerie.serie = userSerie.serie;
-            sharedSerie.appUser= appUserService.toUserEntity(appUserService.getOne(pseudoNotOwner));
+                return userSerieRepository.save(sharedSerie);
+            }
+            //If the user shares the same serie to the same user, we are going to update the permission
+            else if(existingUserSerie!=null && !pseudoNotOwner.equals(pseudoOwner)){
+                existingUserSerie.permission = permission;
+                return userSerieRepository.save(existingUserSerie);
+            }
+            //If the owner shares the serie to himself, we are going to return the owner
+            else{
+                return userOwner;
+            }
 
-            return sharedSerie;
         }
         else{
-            throw new NoAccessDataException("User "+pseudoOwner+" doesn't have the right to share Serie"+serie_id);
+            throw new NoAccessDataException("User "+pseudoOwner+" doesn't have the right to share Serie "+serie_id);
         }
 
     }
@@ -138,18 +154,19 @@ public class UserSerieService {
     //only the owner's Serie can delete his serie
     public void deleteSerie(Long serie_id, String pseudo){
         try {
-            UserSerieEntity userSerie = userSerieRepository.getUserSerieEntitiesByAppUserPseudoAndSerieId(pseudo, serie_id);
+            UserSerieEntity userSerie = userSerieRepository.getUserSerieEntityByUserPseudoAndSerieId(pseudo, serie_id);
             Assert.notNull(userSerie, "UserSerie can not be null");
             if(userSerie.isOwner){
-                //The execution order is important here
-                //We delete the series in USER_SERIE TABLE FIRST
-                Iterable<UserSerieEntity> userSerieEntities = userSerieRepository.getUserSerieEntitiesBySerieId(serie_id);
+
+                //Deletion order is important HERE
+
+                Iterable<UserSerieEntity> userSerieEntities = userSerieRepository.getAllUserSeriesBySerieId(serie_id);
                 userSerieRepository.deleteAll(userSerieEntities);
-                //And after we delete the serie in SERIE TABLE
-                serieRepository.deleteById(serie_id);
-                //We will delete also the events that was linked to that serie
-                Iterable<EventEntity> eventsToDelete = eventRepository.getEventEntitiesBySerieId(serie_id);
+
+                Iterable<EventEntity> eventsToDelete = eventRepository.getAllEventsBySerieId(serie_id);
                 eventRepository.deleteAll(eventsToDelete);
+
+                serieRepository.deleteById(serie_id);
             }
             else {
                 throw new NoAccessDataException("User "+pseudo+" doesn't have the right to share Serie"+serie_id);
@@ -160,16 +177,7 @@ public class UserSerieService {
         }
     }
 
-    private UserSerie toUserSerie(UserSerieEntity userSerieEntity){
-        Assert.notNull(userSerieEntity, "UserSerieEntity can not be null");
-
-        return new UserSerie(userSerieEntity.permission,
-                userSerieEntity.isOwner,
-                appUserService.toUser(userSerieEntity.appUser),
-                serieService.toSerie(userSerieEntity.serie));
-    }
-
-    private UserSerieEntity toUserSerieEntity(UserSerie userSerie){
+    public UserSerieEntity toUserSerieEntity(UserSerie userSerie){
 
         UserSerieEntity userSerieEntity = new UserSerieEntity();
         userSerieEntity.permission = userSerie.permission;

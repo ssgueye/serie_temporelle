@@ -26,20 +26,19 @@ public class AppUserService {
         this.appUserRepository = appUserRepository;
     }
 
-    public Iterable<AppUser> getAllUsers(){
-        return StreamUtils.createStreamFromIterator(appUserRepository.findAll().iterator()).
-                map(this::toUser).collect(Collectors.toList());
+    public Iterable<AppUserEntity> getAllUsers(){
+        return StreamUtils.createStreamFromIterator(appUserRepository.findAll().iterator()).collect(Collectors.toList());
     }
 
-    public AppUser getOne(String pseudo){
+    public AppUserEntity getOne(String pseudo){
         Assert.hasText(pseudo, "pseudo can not be null/empty/blank");
-        return toUser(appUserRepository.findById(pseudo).
-                orElseThrow(()-> new ResourceNotFoundException("User "+pseudo+" can not be found")));
+        return appUserRepository.findById(pseudo).
+                orElseThrow(()-> new ResourceNotFoundException("User "+pseudo+" can not be found"));
     }
 
-    public AppUser save(AppUser appUser){
+    public AppUserEntity save(AppUser appUser){
         Assert.notNull(appUser, "AppUser should not be null");
-        return toUser(appUserRepository.save(toUserEntity(appUser)));
+        return appUserRepository.save(toUserEntity(appUser));
     }
 
 

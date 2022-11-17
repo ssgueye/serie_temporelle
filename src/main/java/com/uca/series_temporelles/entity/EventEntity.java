@@ -1,6 +1,5 @@
 package com.uca.series_temporelles.entity;
 
-import com.uca.series_temporelles.model.Serie;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -11,7 +10,8 @@ public class EventEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    public Long id;
+    @Column(name = "ID")
+    public Long id_event;
 
     @Column(name = "EVENT_DATE")
     public LocalDateTime date;

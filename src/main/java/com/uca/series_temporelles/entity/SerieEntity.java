@@ -10,7 +10,8 @@ public class SerieEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    public Long id;
+    @Column(name = "ID")
+    public Long id_serie;
 
     @Column(name = "TITLE")
     public String title;

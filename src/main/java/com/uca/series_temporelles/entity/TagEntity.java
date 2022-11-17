@@ -8,7 +8,8 @@ public class TagEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    public Long id;
+    @Column(name = "ID")
+    public Long id_tag;
 
     @Column(name = "LABEL")
     public String label;

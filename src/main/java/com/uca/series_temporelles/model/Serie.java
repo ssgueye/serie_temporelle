@@ -6,6 +6,7 @@ import org.springframework.util.Assert;
 import java.time.LocalDateTime;
 
 public class Serie {
+
     @JsonProperty
     public String title;
     @JsonProperty

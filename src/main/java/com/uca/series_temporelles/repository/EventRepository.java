@@ -1,12 +1,13 @@
 package com.uca.series_temporelles.repository;
 
 import com.uca.series_temporelles.entity.EventEntity;
-import com.uca.series_temporelles.model.Event;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 @Repository
 public interface EventRepository extends JpaRepository<EventEntity,Long> {
 
-    Iterable<EventEntity> getEventEntitiesBySerieId(Long serie_id);
+    @Query(value = "SELECT e FROM EventEntity e WHERE e.serie.id_serie = ?1")
+    Iterable<EventEntity> getAllEventsBySerieId(Long serie_id);
 }

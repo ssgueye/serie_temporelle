@@ -7,7 +7,6 @@ import com.uca.series_temporelles.enumerations.Permission;
 import com.uca.series_temporelles.exception.NoAccessDataException;
 import com.uca.series_temporelles.exception.ResourceNotFoundException;
 import com.uca.series_temporelles.model.Event;
-import com.uca.series_temporelles.model.Serie;
 import com.uca.series_temporelles.repository.EventRepository;
 import com.uca.series_temporelles.repository.SerieRepository;
 import com.uca.series_temporelles.repository.UserSerieRepository;
@@ -40,16 +39,15 @@ public class EventService {
         this.serieService = serieService;
     }
 
-    public Iterable<Event> getAllUserSeriesAndTheirEvents(String pseudo, Long serie_id){
+    public Iterable<EventEntity> getAllUserSeriesAndTheirEvents(String pseudo, Long serie_id){
 
         Assert.hasText(pseudo, "pseudo can not be null/empty/blank");
         Assert.notNull(serie_id, "serie_id can not be null");
 
-        UserSerieEntity userSerieEntity = userSerieRepository.getUserSerieEntitiesByAppUserPseudoAndSerieId(pseudo, serie_id);
+        UserSerieEntity userSerieEntity = userSerieRepository.getUserSerieEntityByUserPseudoAndSerieId(pseudo, serie_id);
         //make sure that the User that has been linked to the Serie, only can see the list of events for that serie
         if(userSerieEntity != null){
-            return StreamUtils.createStreamFromIterator(eventRepository.getEventEntitiesBySerieId(serie_id).iterator()).
-                    map(this::toEvent).collect(Collectors.toList());
+            return StreamUtils.createStreamFromIterator(eventRepository.getAllEventsBySerieId(serie_id).iterator()).collect(Collectors.toList());
         }
         else{
             throw new NoAccessDataException("Can not access to the Serie "+serie_id);
@@ -57,7 +55,7 @@ public class EventService {
 
     }
 
-    public Event getOne(String pseudo, Long serie_id, Long event_id){
+    public EventEntity getOne(String pseudo, Long serie_id, Long event_id){
 
         Assert.hasText(pseudo, "pseudo can not be null/empty/blank");
         Assert.notNull(serie_id, "serie_id can not be null");
@@ -65,14 +63,14 @@ public class EventService {
 
         EventEntity event = eventRepository.findById(event_id).orElseThrow(()-> new ResourceNotFoundException("Resource Not found"));
         //Make sure the event that the user want to update belongs to that serie
-        if(event.serie.id.equals(serie_id)){
+        if(event.serie.id_serie.equals(serie_id)){
 
             //Make sure that the user is linked to that serie
-            UserSerieEntity userSerieEntity = userSerieRepository.getUserSerieEntitiesByAppUserPseudoAndSerieId(pseudo, serie_id);
+            UserSerieEntity userSerieEntity = userSerieRepository.getUserSerieEntityByUserPseudoAndSerieId(pseudo, serie_id);
             //Make sure that the user has the permission to update the event
             if(userSerieEntity!=null){
 
-                return toEvent(event);
+                return event;
 
             }
             else{
@@ -85,13 +83,13 @@ public class EventService {
         }
     }
 
-    public Event addEventToSerie(String pseudo, Long serie_id, Event event){
+    public EventEntity addEventToSerie(String pseudo, Long serie_id, Event event){
 
         Assert.hasText(pseudo, "pseudo can not be null/empty/blank");
         Assert.notNull(serie_id, "serie_id can not be null");
         Assert.notNull(event, "event can not be null");
 
-        UserSerieEntity userSerieEntity = userSerieRepository.getUserSerieEntitiesByAppUserPseudoAndSerieId(pseudo, serie_id);
+        UserSerieEntity userSerieEntity = userSerieRepository.getUserSerieEntityByUserPseudoAndSerieId(pseudo, serie_id);
 
         if(userSerieEntity.isOwner || userSerieEntity.permission.equals(Permission.WRITE_READ)){
             SerieEntity serie = serieRepository.findById(serie_id).orElseThrow(()-> new ResourceNotFoundException("Ressource not found"));
@@ -100,14 +98,14 @@ public class EventService {
             serieRepository.save(serie);
 
             event.serie = serieService.toSerie(serie);
-            return toEvent(eventRepository.save(toEventEntity(event)));
+            return eventRepository.save(toEventEntity(event));
         }
         else{
             throw new NoAccessDataException("Can not access to the Serie "+serie_id);
         }
     }
 
-    public Event updateEvent(String pseudo, Long serie_id, Long event_id, Event event){
+    public EventEntity updateEvent(String pseudo, Long serie_id, Long event_id, Event event){
 
         Assert.hasText(pseudo, "pseudo can not be null/empty/blank");
         Assert.notNull(serie_id, "serie_id can not be null");
@@ -116,10 +114,10 @@ public class EventService {
 
         EventEntity updatedEvent = eventRepository.findById(event_id).orElseThrow(()-> new ResourceNotFoundException("Resource Not found"));
         //Make sure the event that the user want to update belongs to that serie
-        if(updatedEvent.serie.id.equals(serie_id)){
+        if(updatedEvent.serie.id_serie.equals(serie_id)){
 
             //Make sure that the user is linked to that serie
-            UserSerieEntity userSerieEntity = userSerieRepository.getUserSerieEntitiesByAppUserPseudoAndSerieId(pseudo, serie_id);
+            UserSerieEntity userSerieEntity = userSerieRepository.getUserSerieEntityByUserPseudoAndSerieId(pseudo, serie_id);
             //Make sure that the user has the permission to update the event
             if(userSerieEntity.isOwner || userSerieEntity.permission.equals(Permission.WRITE_READ)){
                 updatedEvent.date = event.event_date;
@@ -132,7 +130,7 @@ public class EventService {
                 updatedSerie.lastUpdatedDate = updatedEvent.lastUpdatedDate;
                 serieRepository.save(updatedSerie);
 
-                return toEvent(eventRepository.save(updatedEvent));
+                return eventRepository.save(updatedEvent);
 
             }
             else{
@@ -151,8 +149,8 @@ public class EventService {
         try {
 
             EventEntity eventToDelete = eventRepository.findById(event_id).orElseThrow(()-> new ResourceNotFoundException("Resource Not found"));
-            if(eventToDelete.serie.id.equals(serie_id)){
-                UserSerieEntity userSerieEntity = userSerieRepository.getUserSerieEntitiesByAppUserPseudoAndSerieId(pseudo, serie_id);
+            if(eventToDelete.serie.id_serie.equals(serie_id)){
+                UserSerieEntity userSerieEntity = userSerieRepository.getUserSerieEntityByUserPseudoAndSerieId(pseudo, serie_id);
                 if(userSerieEntity.isOwner){
                     eventRepository.delete(eventToDelete);
                     //When we delete an event, the serie that it was linked is changed, so we have to update it's lastUpdatedDate
@@ -172,9 +170,6 @@ public class EventService {
         }catch (EmptyResultDataAccessException e){
             // We can safely Ignore this
         }
-    }
-    private Event toEvent(EventEntity entity){
-        return new Event(entity.date, entity.value, entity.comment, serieService.toSerie(entity.serie));
     }
 
     private EventEntity toEventEntity(Event event){

@@ -1,6 +1,8 @@
 package com.uca.series_temporelles.entity;
 
 import com.uca.series_temporelles.enumerations.Permission;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
 
@@ -11,7 +13,7 @@ public class UserSerieEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ID")
-    public Long id;
+    public Long id_user_serie;
 
     @Column(name = "PRIVILEGE")
     @Enumerated(EnumType.STRING)
@@ -20,11 +22,12 @@ public class UserSerieEntity {
     @Column(name = "OWNER")
     public boolean isOwner;
 
-    @ManyToOne(fetch = FetchType.EAGER, optional = false)
+    @ManyToOne()
     @JoinColumn(name = "USER_PSEUDO")
     public AppUserEntity appUser;
 
-    @ManyToOne(fetch = FetchType.EAGER, optional = false)
+    @ManyToOne(cascade = {CascadeType.PERSIST}, optional = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "ID_SERIE")
     public SerieEntity serie;
 
