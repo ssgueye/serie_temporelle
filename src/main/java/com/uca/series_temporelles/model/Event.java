@@ -10,6 +10,8 @@ import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import org.springframework.util.Assert;
 
 import java.time.LocalDateTime;
+import java.util.LinkedList;
+import java.util.List;
 
 public class Event {
 
@@ -25,6 +27,8 @@ public class Event {
     public LocalDateTime lastUpdatedDate;
     @JsonIgnore
     public Serie serie;
+    @JsonIgnore
+    List<Tag> tags = new LinkedList<>();
 
     public Event(@JsonProperty("event_date") LocalDateTime date,
                  @JsonProperty("value") Double value,

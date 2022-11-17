@@ -10,15 +10,18 @@ public class UserSerie {
 
     @JsonProperty
     public Permission permission;
+    @JsonIgnore
     public Boolean isOwner;
     @JsonIgnore
     public AppUser appUser;
-
+    @JsonIgnore
     public Serie serie;
 
 
     public UserSerie(@JsonProperty("permission") Permission permission, Boolean isOwner, AppUser appUser, Serie serie) {
-
+        Assert.notNull(isOwner, "isOwner can not be null");
+        Assert.notNull(appUser, "appUser can not be null");
+        Assert.notNull(serie, "serie can not be null");
         Assert.notNull(permission, "privilege must not be null");
         this.permission = isOwner ? Permission.WRITE_READ : permission; //Just for safety
         this.isOwner = isOwner;
