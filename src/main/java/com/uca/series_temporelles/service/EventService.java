@@ -39,7 +39,7 @@ public class EventService {
         this.serieService = serieService;
     }
 
-    public Iterable<EventEntity> getAllUserSeriesAndTheirEvents(String pseudo, Long serie_id){
+    public Iterable<EventEntity> getAllEventsForAGivenSerie(String pseudo, Long serie_id){
 
         Assert.hasText(pseudo, "pseudo can not be null/empty/blank");
         Assert.notNull(serie_id, "serie_id can not be null");
@@ -93,12 +93,16 @@ public class EventService {
 
         if(userSerieEntity.isOwner || userSerieEntity.permission.equals(Permission.WRITE_READ)){
             SerieEntity serie = serieRepository.findById(serie_id).orElseThrow(()-> new ResourceNotFoundException("Ressource not found"));
-            //Update the lastUpdatedDate for the serie and save it
+            //Update the lastUpdatedDate for the serie
+            EventEntity newEvent = new EventEntity();
+            newEvent.event_date = event.event_date;
+            newEvent.value = event.value;
+            newEvent.comment = event.comment;
+            newEvent.lastUpdatedDate = event.lastUpdatedDate;
+            newEvent.serie = serie;
             serie.lastUpdatedDate = event.lastUpdatedDate;
-            serieRepository.save(serie);
 
-            event.serie = serieService.toSerie(serie);
-            return eventRepository.save(toEventEntity(event));
+            return eventRepository.save(newEvent);
         }
         else{
             throw new NoAccessDataException("Can not access to the Serie "+serie_id);
@@ -120,7 +124,7 @@ public class EventService {
             UserSerieEntity userSerieEntity = userSerieRepository.getUserSerieEntityByUserPseudoAndSerieId(pseudo, serie_id);
             //Make sure that the user has the permission to update the event
             if(userSerieEntity.isOwner || userSerieEntity.permission.equals(Permission.WRITE_READ)){
-                updatedEvent.date = event.event_date;
+                updatedEvent.event_date = event.event_date;
                 updatedEvent.value = event.value;
                 updatedEvent.comment = event.comment;
                 updatedEvent.lastUpdatedDate = LocalDateTime.now();
@@ -128,7 +132,6 @@ public class EventService {
                 //Change lastUpdatedDate for the serie
                 SerieEntity updatedSerie = serieRepository.findById(serie_id).orElseThrow(()-> new ResourceNotFoundException("Resource Not found"));
                 updatedSerie.lastUpdatedDate = updatedEvent.lastUpdatedDate;
-                serieRepository.save(updatedSerie);
 
                 return eventRepository.save(updatedEvent);
 
@@ -174,9 +177,9 @@ public class EventService {
 
     private EventEntity toEventEntity(Event event){
         EventEntity entity = new EventEntity();
-        entity.date = event.event_date;
+        entity.event_date = event.event_date;
         entity.comment = event.comment;
-        entity.serie = serieService.toSerieEntity(event.serie);
+        entity.serie = userSerieService.toSerieEntity(event.serie);
         entity.lastUpdatedDate = event.lastUpdatedDate;
 
         return entity;

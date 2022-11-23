@@ -4,6 +4,7 @@ import com.uca.series_temporelles.entity.AppUserEntity;
 import com.uca.series_temporelles.model.AppUser;
 import com.uca.series_temporelles.service.AppUserService;
 
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

@@ -1,6 +1,8 @@
 package com.uca.series_temporelles.entity;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
@@ -14,7 +16,7 @@ public class EventEntity {
     public Long id_event;
 
     @Column(name = "EVENT_DATE")
-    public LocalDateTime date;
+    public LocalDateTime event_date;
 
     @Column(name = "EVENT_VALUE")
     public Double value;
@@ -25,8 +27,9 @@ public class EventEntity {
     @Column(name = "LAST_UPDATED_DATE")
     public LocalDateTime lastUpdatedDate;
 
-    @ManyToOne(fetch = FetchType.EAGER, optional = false)
+    @ManyToOne()
     @JoinColumn(name = "ID_SERIE")
+    @JsonIgnore
     public SerieEntity serie;
 
 }

@@ -12,13 +12,10 @@ public class Tag {
     @JsonIgnore
     public Event event;
 
-    public Tag(@JsonProperty("label") String label, Event event) {
+    public Tag(@JsonProperty("label") String label) {
         Assert.hasText(label, "Label must not be null/empty/blank");
-        Assert.notNull(event, "A tag must have an event");
+        label = label.replaceAll(" ", "_").toUpperCase();
         this.label = label;
-        this.event = event;
     }
 
-    //Si une personne crée le même nom de taga, on peut conserver juste l'ancien au lieu de
-    //faire une duplication ( A voir)
 }

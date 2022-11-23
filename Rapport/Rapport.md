@@ -39,7 +39,7 @@ Chacun des deux, a des avantages et des inconvénients :
 Selon ces deux comparaisons, nous avons décidé d'utiliser le *mapping unidirectionnel*, car nous préférons éviter les problèmes de performance. Et pour la cascade, nous allons la faire manuellement.
 
 ## IV. Gestion des ressources <a name ="ressources"></a>
-Pour l'API, nous avons utilisé REST avec les méthodes `GET`, `POST`, `PUT`, `PATCH` et `DELETE`.
+Pour l'API, nous avons utilisé REST avec les méthodes `GET`, `POST`, `PUT`, et `DELETE`.
 ### 1. Pour gérer les utilisateurs (Création, Affichage) 
 - Pour afficher tous les utilisateurs
 ```http request

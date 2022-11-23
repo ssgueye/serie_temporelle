@@ -45,13 +45,6 @@ public class UserSerieServiceTest {
     AppUserService appUserService;
 
 
-    @Test
-    void canNotSaveSerie(){
-        assertThrows(IllegalArgumentException.class, ()-> userSerieService.createSerie("saliou", null));
-        assertThrows(IllegalArgumentException.class, ()-> userSerieService.createSerie("", null));
-        assertThrows(IllegalArgumentException.class, ()-> userSerieService.createSerie("  ", null));
-        assertThrows(IllegalArgumentException.class, ()-> userSerieService.createSerie(null, null));
-    }
 
     private static UserSerieEntity newUserSerieEntity(Permission permission,
                                                       Boolean isOwner,

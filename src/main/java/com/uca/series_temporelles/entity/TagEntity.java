@@ -1,5 +1,7 @@
 package com.uca.series_temporelles.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 
 @Entity
@@ -10,8 +12,9 @@ public class TagEntity {
     @Column(name = "LABEL")
     public String label;
 
-    @ManyToOne(fetch = FetchType.EAGER, optional = false)
+    @ManyToOne()
     @JoinColumn(name = "ID_EVENT")
+    @JsonIgnore
     public EventEntity event;
 
 }

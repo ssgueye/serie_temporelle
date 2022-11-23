@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.assertj.core.api.Assertions.*;
 
 public class TagTest {
-
+/*
     private final static Serie serie = new Serie("Ma série", "Ma description");
     private final static Event event = new Event(
             LocalDateTime.of(2022, 11, 5, 10, 11),
@@ -54,5 +54,5 @@ public class TagTest {
         //Deserialization
         //TODO
     }
-
+*/
 }

@@ -11,7 +11,7 @@ import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class EventTest {
-
+/*
     private final static Serie serie = new Serie("Sport", "My Daily Sport");
 
     @Nested
@@ -59,5 +59,5 @@ public class EventTest {
         //Deserialization
         //TODO
     }
-
+*/
 }
