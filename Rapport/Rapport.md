@@ -41,6 +41,19 @@ Selon ces deux comparaisons, nous avons décidé d'utiliser le *mapping unidirec
 ## IV. Gestion des ressources <a name ="ressources"></a>
 Pour l'API, nous avons utilisé REST avec les méthodes `GET`, `POST`, `PUT`, et `DELETE`.
 ### 1. Pour gérer les utilisateurs (Création, Affichage) 
+- Pour créer un utilisateur
+```http request
+POST http://localhost:8080/api/users/add
+```
+```http request
+## Exemple
+POST http://localhost:8080/api/add
+Content-Type: application/json
+
+{
+  "pseudo":"ssgueye"
+}
+```
 - Pour afficher tous les utilisateurs
 ```http request
 GET http://localhost:8080/api/users
@@ -49,36 +62,157 @@ GET http://localhost:8080/api/users
 ```http request
 GET http://localhost:8080/api/users/{{pseudo}}
 ```
-- Pour créer un utilisateur
 ```http request
-POST http://localhost:8080/api/users/add
+## Exemple
+GET http://localhost:8080/api/users/ssgueye
 ```
-- Pour créer un utilisateur
+
+### 2. Pour gérer les séries (Création, Affichage, Modification et Suppression)
+- Pour créer une série.
 ```http request
-POST http://localhost:8080/api/users/add
+POST http://localhost:8080/api/series/add/{{pseudo}}
 ```
-### 2. Pour gérer les séries (Création, Affichage, Partage, Modification et Suppression)
-- Pour afficher toutes les séries d'un utilisateur, ainsi que leur mode de partage.
 ```http request
-GET http://localhost:8080/api/user_series/{{pseudo}}
+## Exemple
+POST http://localhost:8080/api/series/add/ssgueye
+Content-Type: application/json
+
+{
+  "title": "Météo Clermont-Ferrand",
+  "description": "Visualisez toute la météo de Clermont-Ferrand"
+}
 ```
-- Pour afficher une série d'un utilisateur ainsi que son mode de partage
+- Pour afficher toutes les séries (créées et partagées) d'un utilisateur
 ```http request
-GET http://localhost:8080/api/user_series/{{pseudo}}/{{serie_id}}
+GET http://localhost:8080/api/series/{{pseudo}}
 ```
-- Pour créer une série. Cette série sera affectée à l'utilisateur qui l'a créé
 ```http request
-POST http://localhost:8080/api/user_series/add/{{pseudo}}
+##Exemple: Afficher toutes les séries créées par "ssgueye" et partagées à "ssgueye"
+GET http://localhost:8080/api/series/ssgueye
 ```
-- Pour partager une série à un utilisateur (ici `pseudoOwner` partage la série à `pseudoReceiver` avec le mode de partage souhaité -> Soit `READONLY` ou `WRITE_READ`)
+- Pour afficher toutes les séries créées par un utilisateur
 ```http request
-POST http://localhost:8080/api/user_series/share/{{serie_id}}/{{pseudoOwner}}/{{pseudoReceiver}}?permission={{permission}}
+GET http://localhost:8080/api/series/OwnSeries/{{pseudo}}
+```
+```http request
+## Exemple: Afficher toutes les séries créées par "ssgueye"
+GET http://localhost:8080/api/series/OwnSeries/ssgueye
+```
+- Pour afficher toutes les séries qui nous ont été partagées
+```http request
+GET http://localhost:8080/api/series/sharedSeries/{{pseudo}}
+```
+```http request
+## Exemple: Afficher toutes les séries partagées à "ssgueye"
+GET http://localhost:8080/api/series/sharedSeries/ssgueye
 ```
 - Pour modifier une série
 ```http request
-PUT http://localhost:8080/api/user_series/update/{{serie_id}}/{{pseudo}}
+PUT http://localhost:8080/api/series/update/{{serie_id}}/{{pseudo}}
+```
+```http request
+## Exemple: modifier la série avec l'id 1 de "ssgueye"
+PUT http://localhost:8080/api/series/update/1/ssgueye
+Content-Type: application/json
+
+{
+  "title": "Météo Clermont-Ferrand Semaine 46",
+  "description": "Visualisez toute la météo de Clermont-Ferrand"
+}
 ```
 - Pour supprimer une série
 ```http request
-DELETE http://localhost:8080/api/user_series/delete/{{serie_id}}/{{pseudo}}
+DELETE http://localhost:8080/api/series/delete/{{serie_id}}/{{pseudo}}
+```
+```http request
+## Exemple: supprimer la série avec l'id 1 de "ssgueye"
+DELETE http://localhost:8080/api/series/delete/1/ssgueye
+```
+
+### 3. Pour gérer les séries et les permissions (Partage & Affichage)
+- Pour partager une série
+```http request
+POST http://localhost:8080/api/user_series/share/{{serie_id}}/{{pseudoOwner}}/{{pseudoReceiver}}?permission={{permission}}
+```
+```http request
+## Exemple: Le user "ssgueye" partage la série 1 à "dapieu" en mode "READONLY"
+POST http://localhost:8080/api/user_series/share/1/ssgueye/dapieu?permission=READONLY
+```
+<strong style="color: red">Précision 1:</strong><span> Si l'utilisateur qui partage la série n'est pas le propriétaire de cette série, il y aura une erreur 500 qui précise que l'utilisateur n'a pas la permission de partager cette série.</span><br>
+<strong style="color: red">Précision 2:</strong><span> Si l'utilisateur partage la série à lui même, on lui retourne la série sans rien modifier.</span><br>
+<strong style="color: red">Précision 3:</strong><span> Si l'utilisateur partage deux fois la même série à un utilisateur, on vérifie s'il a changé le mode partage ou non. Si oui on met à jour le mode de partage. Sinon on garde l'ancien mode.</span><br>
+- Pour afficher une série et sa permission
+```http request
+GET http://localhost:8080/api/user_series/{{pseudo}}/{{serie_id}}
+```
+```http request
+## Exemple: Afficher la série avec id "1" de "ssgueye" et sa permission.
+GET http://localhost:8080/api/user_series/ssgueye/1
+
+```
+- Pour afficher toutes les séries et leur permission
+```http request
+GET http://localhost:8080/api/user_series/{{pseudo}}
+```
+```http request
+## Exemple: Afficher toutes les séries de "ssgueye" et leur permission
+GET http://localhost:8080/api/user_series/ssgueye
+```
+
+### 4. Pour gérer les events (Création, Affichage, Modification et Suppression)
+- Pour ajouter un event dans une série
+```http request
+POST http://localhost:8080/api/events/add?pseudo={{pseudo}}&serie_id={{serie_id}}
+```
+```http request
+## Exemple: créer et Ajouter un event dans la série "1" de "ssgueye"
+POST http://localhost:8080/api/events/add?pseudo=ssgueye&serie_id=1
+Content-Type: application/json
+
+{
+  "event_date": "2022-11-27T15:00",
+  "value": 12,
+  "comment": "Du vent frais"
+}
+```
+<strong style="color: red">Précision :</strong><span> Le format de la date est: `yyyy-mm-ddTHH:mm:ss`</span><br>
+- Pour afficher tous les events d'une série
+```http request
+GET http://localhost:8080/api/events/all?pseudo={{pseudo}}&serie_id={{serie_id}}
+```
+```http request
+## Exemple: Afficher tous les events de la série "1"
+GET http://localhost:8080/api/events/all?pseudo=ssgueye&serie_id=1
+
+```
+- Pour afficher un event d'une série
+```http request
+GET http://localhost:8080/api/events/one?pseudo={{pseudo}}&serie_id={{serie_id}}&event_id={{event_id}}
+```
+```http request
+## Exemple: Afficher l'event "1" de la serie "1" de "ssgueye"
+GET http://localhost:8080/api/events/one?pseudo=ssgueye&serie_id=1&event_id=1
+```
+- Pour modifier un event
+```http request
+PUT http://localhost:8080/api/events/update?pseudo={{pseudo}}&serie_id={{serie_id}}&event_id={{event_id}}
+```
+```http request
+## Exemple: Modifier l'event "1" de la série "1" de "ssgueye"
+PUT http://localhost:8080/api/events/update?pseudo=ssgueye&serie_id=1&event_id=1
+Content-Type: application/json
+
+{
+  "event_date": "2022-11-27T15:00",
+  "value": 12,
+  "comment": "Du vent"
+}
+```
+- Pour supprimer un event
+```http request
+DELETE http://localhost:8080/api/events/delete?pseudo={{pseudo}}&serie_id={{serie_id}}&event_id={{event_id}}
+```
+```http request
+## Exemple: Supprimer l'event "1" de la série "1" de "ssgueye"
+DELETE http://localhost:8080/api/events/delete?pseudo=ssgueye&serie_id=1&event_id=1
 ```

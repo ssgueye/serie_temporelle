@@ -7,6 +7,6 @@ import javax.persistence.*;
 public class AppUserEntity {
 
     @Id
-    @Column(name = "PSEUDO")
+    @Column(name = "PSEUDO", unique = true)
     public String pseudo;
 }

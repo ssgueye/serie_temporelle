@@ -66,9 +66,7 @@ public class UserSerieService {
         Assert.notNull(permission, "Permission is mandatory");
 
         UserSerieEntity userOwner = userSerieRepository.getUserSerieEntityByUserPseudoAndSerieId(pseudoOwner, serie_id);
-        Assert.notNull(userOwner, "UserSerie can not be null");
-        System.out.println(userOwner);
-        if(userOwner.isOwner){
+        if(userOwner!=null && userOwner.isOwner){
             //avoid duplications
             UserSerieEntity existingUserSerie = userSerieRepository.getUserSerieEntityByUserPseudoAndSerieId(pseudoNotOwner, serie_id);
             //If the user shares the serie to the user for the first time

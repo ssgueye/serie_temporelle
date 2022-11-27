@@ -2,7 +2,6 @@ package com.uca.series_temporelles.controller;
 
 import com.uca.series_temporelles.entity.EventEntity;
 import com.uca.series_temporelles.model.Event;
-import com.uca.series_temporelles.model.Serie;
 import com.uca.series_temporelles.service.EventService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,22 +17,22 @@ public class EventController {
         this.eventService = eventService;
     }
 
-    @GetMapping("{pseudo}/{serie_id}")
-    public ResponseEntity<Iterable<EventEntity>> getAllEventsForAGivenSerie(@PathVariable("pseudo") String pseudo,
-                                                                            @PathVariable("serie_id") Long serie_id){
+    @GetMapping("all")
+    public ResponseEntity<Iterable<EventEntity>> getAllEventsForAGivenSerie(@RequestParam("pseudo") String pseudo,
+                                                                            @RequestParam("serie_id") Long serie_id){
         return ResponseEntity.ok(eventService.getAllEventsForAGivenSerie(pseudo, serie_id));
     }
 
-    @GetMapping("{pseudo}/{serie_id}/{event_id}")
-    public ResponseEntity<EventEntity> getOneEvent(@PathVariable("pseudo") String pseudo,
-                                                   @PathVariable("serie_id") Long serie_id,
-                                                   @PathVariable("event_id") Long event_id){
+    @GetMapping("one")
+    public ResponseEntity<EventEntity> getOneEvent(@RequestParam("pseudo") String pseudo,
+                                                   @RequestParam("serie_id") Long serie_id,
+                                                   @RequestParam("event_id") Long event_id){
         return ResponseEntity.ok(eventService.getOne(pseudo, serie_id, event_id));
     }
 
-    @PostMapping(path = "add/{pseudo}/{serie_id}", consumes = "application/json")
-    public ResponseEntity<EventEntity> addEventInASerie(@PathVariable("pseudo") String pseudo,
-                                                        @PathVariable("serie_id") Long serie_id,
+    @PostMapping(path = "add", consumes = "application/json")
+    public ResponseEntity<EventEntity> addEventInASerie(@RequestParam("pseudo") String pseudo,
+                                                        @RequestParam("serie_id") Long serie_id,
                                                         @RequestBody Event event){
 
         try{
@@ -50,10 +49,10 @@ public class EventController {
 
     }
 
-    @PutMapping(path = "update/{pseudo}/{serie_id}/{event_id}", consumes = "application/json")
-    public ResponseEntity<EventEntity> updateAnEvent(@PathVariable("pseudo") String pseudo,
-                                                     @PathVariable("serie_id") Long serie_id,
-                                                     @PathVariable("event_id") Long event_id,
+    @PutMapping(path = "update", consumes = "application/json")
+    public ResponseEntity<EventEntity> updateAnEvent(@RequestParam("pseudo") String pseudo,
+                                                     @RequestParam("serie_id") Long serie_id,
+                                                     @RequestParam("event_id") Long event_id,
                                                      @RequestBody Event event){
         try {
             EventEntity updated = eventService.updateEvent(pseudo, serie_id, event_id, event);
@@ -64,10 +63,10 @@ public class EventController {
         }
     }
 
-    @DeleteMapping("delete/{pseudo}/{serie_id}/{event_id}")
-    public ResponseEntity<Void> deleteEvent(@PathVariable("pseudo") String pseudo,
-                                            @PathVariable("serie_id") Long serie_id,
-                                            @PathVariable("event_id") Long event_id){
+    @DeleteMapping("delete")
+    public ResponseEntity<Void> deleteEvent(@RequestParam("pseudo") String pseudo,
+                                            @RequestParam("serie_id") Long serie_id,
+                                            @RequestParam("event_id") Long event_id){
 
         eventService.delete(pseudo, serie_id, event_id);
         return ResponseEntity.noContent().build();

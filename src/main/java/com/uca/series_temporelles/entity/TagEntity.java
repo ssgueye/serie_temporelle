@@ -9,6 +9,9 @@ import javax.persistence.*;
 public class TagEntity {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    public Long id;
+
     @Column(name = "LABEL")
     public String label;
 

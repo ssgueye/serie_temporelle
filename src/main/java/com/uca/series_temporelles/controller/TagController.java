@@ -34,12 +34,34 @@ public class TagController {
         try{
             TagEntity tagSaved = tagService.addTag(pseudo, serie_id, event_id, tag);
             String uri = "api/tags/"+"pseudo="+pseudo+"&serieId="+
-                    serie_id+"&eventId="+event_id+"&tag="+tagSaved.label;
+                    serie_id+"&eventId="+event_id+"&tagId="+tagSaved.id;
 
             return ResponseEntity.created(URI.create(uri)).body(tagSaved);
 
         }catch (IllegalArgumentException iae){
             return ResponseEntity.badRequest().build();
         }
+    }
+
+    @PutMapping(path = "update", consumes = "application/json")
+    public ResponseEntity<TagEntity> updateTag(@RequestParam("pseudo") String pseudo,
+                                                     @RequestParam("serieId") Long serie_id,
+                                                     @RequestParam("eventId") Long event_id,
+                                                     @RequestParam("tagId") Long tag_id,
+                                                     @RequestBody Tag tag){
+        TagEntity tagUpdated = tagService.update(pseudo, serie_id, event_id,tag_id, tag);
+
+        return ResponseEntity.ok(tagUpdated);
+
+    }
+
+    @DeleteMapping("delete")
+    public ResponseEntity<Void> delete(@RequestParam("pseudo") String pseudo,
+                                       @RequestParam("serieId") Long serie_id,
+                                       @RequestParam("eventId") Long event_id,
+                                       @RequestParam("tagId") Long tag_id){
+        tagService.deleteTag(pseudo, serie_id, event_id, tag_id);
+
+        return ResponseEntity.ok().build();
     }
 }

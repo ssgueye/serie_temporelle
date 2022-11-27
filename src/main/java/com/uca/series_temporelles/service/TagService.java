@@ -70,4 +70,54 @@ public class TagService {
             throw new ResourceNotFoundException("Can not found the event "+event_id+" in the serie "+serie_id);
         }
     }
+
+    public TagEntity update(String pseudo, Long serie_id, Long event_id, Long tag_id, Tag tag){
+        EventEntity entity = eventRepository.findById(event_id).orElseThrow(()-> new ResourceNotFoundException("Event not found"));
+        if(entity.serie.id_serie.equals(serie_id)){
+            UserSerieEntity userSerieEntity = userSerieRepository.getUserSerieEntityByUserPseudoAndSerieId(pseudo, serie_id);
+            if(userSerieEntity.isOwner || userSerieEntity.permission.equals(Permission.WRITE_READ)){
+                TagEntity updatedTag = tagRepository.findById(tag_id).orElseThrow(()-> new ResourceNotFoundException("Tag not found"));
+                if(updatedTag.event.id_event.equals(entity.id_event)){
+                    updatedTag.label = tag.label;
+                    return tagRepository.save(updatedTag);
+                }
+                else{
+                    throw new NoAccessDataException("User "+pseudo+" does not have the permission to access to this tag");
+                }
+            }
+            else {
+                throw new NoAccessDataException("User "+pseudo+" does not have the permission to access to this serie");
+            }
+        }
+        else {
+            throw new ResourceNotFoundException("Can not found the event "+event_id+" in the serie "+serie_id);
+        }
+    }
+
+    public void deleteTag(String pseudo, Long serie_id, Long event_id, Long tag_id){
+        try{
+            EventEntity entity = eventRepository.findById(event_id).orElseThrow(()-> new ResourceNotFoundException("Event not found"));
+            if(entity.serie.id_serie.equals(serie_id)){
+                UserSerieEntity userSerieEntity = userSerieRepository.getUserSerieEntityByUserPseudoAndSerieId(pseudo, serie_id);
+                if(userSerieEntity.isOwner){
+                    TagEntity updatedTag = tagRepository.findById(tag_id).orElseThrow(()-> new ResourceNotFoundException("Tag not found"));
+                    if(updatedTag.event.id_event.equals(entity.id_event)){
+                        tagRepository.deleteById(tag_id);
+                    }
+                    else{
+                        throw new NoAccessDataException("User "+pseudo+" does not have the permission to access to this tag");
+                    }
+                }
+                else {
+                    throw new NoAccessDataException("User "+pseudo+" does not have the permission to access to this serie");
+                }
+            }
+            else {
+                throw new ResourceNotFoundException("Can not found the event "+event_id+" in the serie "+serie_id);
+            }
+        }catch (EmptyResultDataAccessException exception){
+            // We can safely ignore this
+        }
+
+    }
 }
