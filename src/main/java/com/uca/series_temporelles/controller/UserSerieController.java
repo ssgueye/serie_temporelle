@@ -55,7 +55,22 @@ public class UserSerieController {
         }
         return false;
     }
-    public Boolean isAlreadyShared(AppUser user, Serie serie){
+    public Boolean haveWritePrivilege(AppUser user, Serie serie){
+        if (userSerieRepository.getPrivilege(user,serie) == "Write"){
+            return true;
+        }
+        return false;
+    };
+    public Boolean haveReadPrivilege(AppUser user, Serie serie){
+        if (userSerieRepository.getPrivilege(user,serie) == "Read"){
+            return true;
+        }
+        return false;
+    };
+    public Boolean serieIsAlreadyShared(AppUser user, Serie serie){
+        if (userSerieRepository.getAllSharedItems(user,serie) != null){
+            return true;
+        }
         return false;
     }
 }
