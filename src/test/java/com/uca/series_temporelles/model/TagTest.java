@@ -11,17 +11,23 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.assertj.core.api.Assertions.*;
 
 public class TagTest {
-/*
+
     private final static Serie serie = new Serie("Ma série", "Ma description");
     private final static Event event = new Event(
             LocalDateTime.of(2022, 11, 5, 10, 11),
-            12.5, "comment", serie);
+            12.5, "comment");
     @Nested
     class TagSuccessCreationTests{
 
         @Test
         void createATag(){
-            assertThat(new Tag("tag1", event)).isNotNull();
+            assertThat(new Tag("tag1")).isNotNull();
+        }
+
+        @Test
+        void createATagWithWhiteSpaces(){
+            Tag tag = new Tag("Ceci est un Tag");
+            assertThat(tag.label).isEqualTo("CECI_EST_UN_TAG");
         }
     }
 
@@ -30,13 +36,15 @@ public class TagTest {
 
         @Test
         void canNotCreateATagWithNullLabel(){
-            assertThrows(IllegalArgumentException.class, ()-> new Tag(null, event));
+            assertThrows(IllegalArgumentException.class, ()-> new Tag(null));
         }
 
         @Test
-        void canNotCreateATagWithNullEvent(){
-            assertThrows(IllegalArgumentException.class, ()-> new Tag("tag1", null));
+        void canNotCreateATagWithLabelExceed20Letters(){
+            String label = "Ceci est un label très long et il il doit pas être accepté";
+            assertThrows(IllegalArgumentException.class, ()-> new Tag(label));
         }
+
     }
 
     @Nested
@@ -44,15 +52,15 @@ public class TagTest {
 
         @Test
         void mustSerializeToJson() throws JsonProcessingException {
-            Tag tag = new Tag("tag1", event);
+            Tag tag = new Tag("TAG1");
             var mapper = new ObjectMapper();
 
-            String JSON = "{\"label\":\"tag1\"}";
+            String JSON = "{\"label\":\"TAG1\"}";
             assertThat(mapper.writeValueAsString(tag)).isEqualTo(JSON);
         }
 
         //Deserialization
         //TODO
     }
-*/
+
 }

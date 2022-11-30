@@ -28,7 +28,7 @@ public class EventEntity {
     public LocalDateTime lastUpdatedDate;
 
     @ManyToOne()
-    @JoinColumn(name = "ID_SERIE")
+    @JoinColumn(name = "ID_SERIE", nullable = false)
     @JsonIgnore
     public SerieEntity serie;
 

@@ -20,17 +20,21 @@ public class EventController {
     @GetMapping("all")
     public ResponseEntity<Iterable<EventEntity>> getAllEventsForAGivenSerie(@RequestParam("pseudo") String pseudo,
                                                                             @RequestParam("serie_id") Long serie_id){
-        return ResponseEntity.ok(eventService.getAllEventsForAGivenSerie(pseudo, serie_id));
+        return ResponseEntity.ok()
+                .header("Cache-Control", "no-cache, max-age=60, must-revalidate")
+                .body(eventService.getAllEventsForAGivenSerie(pseudo, serie_id));
     }
 
     @GetMapping("one")
     public ResponseEntity<EventEntity> getOneEvent(@RequestParam("pseudo") String pseudo,
                                                    @RequestParam("serie_id") Long serie_id,
                                                    @RequestParam("event_id") Long event_id){
-        return ResponseEntity.ok(eventService.getOne(pseudo, serie_id, event_id));
+        return ResponseEntity.ok()
+                .header("Cache-Control", "no-cache, max-age=60, must-revalidate")
+                .body(eventService.getOne(pseudo, serie_id, event_id));
     }
 
-    @PostMapping(path = "add", consumes = "application/json")
+    @PostMapping("add")
     public ResponseEntity<EventEntity> addEventInASerie(@RequestParam("pseudo") String pseudo,
                                                         @RequestParam("serie_id") Long serie_id,
                                                         @RequestBody Event event){
@@ -49,7 +53,7 @@ public class EventController {
 
     }
 
-    @PutMapping(path = "update", consumes = "application/json")
+    @PutMapping("update")
     public ResponseEntity<EventEntity> updateAnEvent(@RequestParam("pseudo") String pseudo,
                                                      @RequestParam("serie_id") Long serie_id,
                                                      @RequestParam("event_id") Long event_id,

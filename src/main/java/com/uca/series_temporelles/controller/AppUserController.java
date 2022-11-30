@@ -30,7 +30,7 @@ import java.net.URI;
             return ResponseEntity.ok().body(appUserService.getOne(pseudo));
     }
 
-    @PostMapping(path = "add", consumes = "application/json")
+    @PostMapping("add")
     public ResponseEntity<AppUserEntity> create(@RequestBody AppUser appUser){
         try{
             AppUserEntity savedUser = appUserService.save(appUser);

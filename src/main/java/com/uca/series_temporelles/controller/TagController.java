@@ -26,7 +26,7 @@ public class TagController {
         return ResponseEntity.ok(tagService.listAllTagsByEvent(pseudo, serie_id, event_id));
     }
 
-    @PostMapping(path = "add", consumes = "application/json")
+    @PostMapping("add")
     public ResponseEntity<TagEntity> addTagToAnEvent(@RequestParam("pseudo") String pseudo,
                                                      @RequestParam("serieId") Long serie_id,
                                                      @RequestParam("eventId") Long event_id,
@@ -43,7 +43,7 @@ public class TagController {
         }
     }
 
-    @PutMapping(path = "update", consumes = "application/json")
+    @PutMapping("update")
     public ResponseEntity<TagEntity> updateTag(@RequestParam("pseudo") String pseudo,
                                                      @RequestParam("serieId") Long serie_id,
                                                      @RequestParam("eventId") Long event_id,

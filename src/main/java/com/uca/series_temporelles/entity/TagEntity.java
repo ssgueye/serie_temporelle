@@ -16,7 +16,7 @@ public class TagEntity {
     public String label;
 
     @ManyToOne()
-    @JoinColumn(name = "ID_EVENT")
+    @JoinColumn(name = "ID_EVENT", nullable = false)
     @JsonIgnore
     public EventEntity event;
 

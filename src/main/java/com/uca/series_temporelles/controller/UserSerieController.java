@@ -22,7 +22,9 @@ public class UserSerieController {
     @GetMapping("{pseudo}")
     public ResponseEntity<Iterable<UserSerieEntity>> getAllUserSeries(@PathVariable String pseudo){
 
-        return ResponseEntity.ok(userSerieService.getAllUserSeries(pseudo));
+        return ResponseEntity.ok().
+                header("Cache-Control", "no-cache, max-age=60, must-revalidate")
+                .body(userSerieService.getAllUserSeries(pseudo));
     }
 
     @GetMapping("{pseudo}/{serie_id}")
@@ -37,10 +39,12 @@ public class UserSerieController {
             return ResponseEntity.badRequest().build();
         }
 
-        return ResponseEntity.ok(userSerie);
+        return ResponseEntity.ok()
+                .header("Cache-Control", "no-cache, max-age=60, must-revalidate")
+                .body(userSerie);
     }
 
-    @PostMapping(path = "share/{serie_id}/{pseudoOwner}/{pseudoReceiver}")
+    @PostMapping("share/{serie_id}/{pseudoOwner}/{pseudoReceiver}")
     public ResponseEntity<UserSerieEntity> shareSerie(@PathVariable("serie_id") Long serie_id,
                                                       @PathVariable("pseudoOwner") String pseudoOwner,
                                                       @PathVariable("pseudoReceiver") String pseudoReceiver,

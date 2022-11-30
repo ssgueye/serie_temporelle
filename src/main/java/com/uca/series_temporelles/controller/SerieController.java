@@ -3,10 +3,12 @@ package com.uca.series_temporelles.controller;
 import com.uca.series_temporelles.entity.SerieEntity;
 import com.uca.series_temporelles.model.Serie;
 import com.uca.series_temporelles.service.SerieService;
+import org.springframework.http.CacheControl;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
+import java.time.Duration;
 
 @RestController
 @RequestMapping("api/series")
@@ -20,20 +22,26 @@ public class SerieController {
 
     @GetMapping("OwnSeries/{pseudo}")
     public ResponseEntity<Iterable<SerieEntity>> getAllOwnSeries(@PathVariable String pseudo){
-        return ResponseEntity.ok(serieService.getAllOwnSeries(pseudo));
+        return ResponseEntity.ok()
+                .header("Cache-Control", "no-cache, max-age=60, must-revalidate")
+                .body(serieService.getAllOwnSeries(pseudo));
     }
 
     @GetMapping("sharedSeries/{pseudo}")
     public ResponseEntity<Iterable<SerieEntity>> getAllSharedSeries(@PathVariable String pseudo){
-        return ResponseEntity.ok(serieService.getAllSharedSeries(pseudo));
+        return ResponseEntity.ok()
+                .header("Cache-Control", "no-cache, max-age=60, must-revalidate")
+                .body(serieService.getAllSharedSeries(pseudo));
     }
 
     @GetMapping("/{pseudo}")
     public ResponseEntity<Iterable<SerieEntity>> getAllSeries(@PathVariable String pseudo){
-        return ResponseEntity.ok(serieService.getAllSeries(pseudo));
+        return ResponseEntity.ok()
+                .header("Cache-Control", "no-cache, max-age=60, must-revalidate")
+                .body(serieService.getAllSeries(pseudo));
     }
 
-    @PostMapping(path = "add/{pseudo}", consumes = "application/json")
+    @PostMapping("add/{pseudo}")
     public ResponseEntity<SerieEntity> createSerie(@PathVariable String pseudo, @RequestBody Serie serie){
 
         try {
@@ -49,7 +57,7 @@ public class SerieController {
 
     }
 
-    @PutMapping(path = "update/{serie_id}/{pseudo}", consumes = "application/json")
+    @PutMapping("update/{serie_id}/{pseudo}")
     public ResponseEntity<SerieEntity> updateSerie(@PathVariable("serie_id") Long serie_id,
                                                    @PathVariable("pseudo") String pseudo,
                                                    @RequestBody Serie serie){
