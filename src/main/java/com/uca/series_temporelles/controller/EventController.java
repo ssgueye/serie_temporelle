@@ -3,10 +3,12 @@ package com.uca.series_temporelles.controller;
 import com.uca.series_temporelles.entity.EventEntity;
 import com.uca.series_temporelles.model.Event;
 import com.uca.series_temporelles.service.EventService;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
+import java.time.LocalDateTime;
 
 @RestController
 @RequestMapping("api/events")
@@ -74,5 +76,22 @@ public class EventController {
 
         eventService.delete(pseudo, serie_id, event_id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("filter/tag/{pseudo}")
+    public ResponseEntity<Iterable<EventEntity>> FilterEventsByTag(@PathVariable("pseudo") String pseudo,
+                                                                   @RequestParam String tag){
+        return ResponseEntity.ok(eventService.FilterEventsByTag(pseudo, tag));
+    }
+
+    @GetMapping("frequency/tag/{pseudo}")
+    public ResponseEntity<String> TagFrequencyByEvent(@PathVariable("pseudo") String pseudo,
+                                                     @RequestParam("label") String tag,
+                                                     @RequestParam("startDate")
+                                                         @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
+                                                     @RequestParam("endDate")
+                                                         @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime end_date){
+        return ResponseEntity.ok("Fréquence étiquette dans l'intervalle "+"["+startDate+";"+end_date+"] est de "+
+                eventService.TagFrequencyByDateRange(tag, pseudo, startDate, end_date));
     }
 }

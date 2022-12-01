@@ -83,6 +83,21 @@ public class EventService {
         }
     }
 
+    public Iterable<EventEntity> FilterEventsByTag(String pseudo,String label_tag){
+        Assert.hasText(pseudo, "pseudo can not be null/empty/blank");
+        Assert.notNull(label_tag, "label_tag can not be null/empty/blank");
+
+            return StreamUtils.createStreamFromIterator(eventRepository.FilterEventsByTag(label_tag.toUpperCase(), pseudo).iterator()).collect(Collectors.toList());
+    }
+
+    public Integer TagFrequencyByDateRange(String label, String pseudo, LocalDateTime start_date, LocalDateTime end_date){
+        Assert.hasText(pseudo, "pseudo can not be null/empty/blank");
+        Assert.notNull(label, "label can not be null/empty/blank");
+
+        return StreamUtils.createStreamFromIterator(eventRepository.getTagFrequencyByEventDateRange(label, pseudo, start_date, end_date).iterator()).collect(Collectors.toList()).size();
+    }
+
+
     public EventEntity addEventToSerie(String pseudo, Long serie_id, Event event){
 
         Assert.hasText(pseudo, "pseudo can not be null/empty/blank");

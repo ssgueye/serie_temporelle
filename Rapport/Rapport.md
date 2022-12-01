@@ -278,6 +278,28 @@ GET http://localhost:8080/api/events/one?pseudo={{pseudo}}&serie_id={{serie_id}}
 GET http://localhost:8080/api/events/one?pseudo=ssgueye&serie_id=1&event_id=1
 ```
 
+- **Pour Filtrer les events par tag**
+
+```http request
+GET http://localhost:8080/api/events/filter/tag/{{pseudo}}?label={{label}}
+````
+```http request
+## Exemple: Filtrer les events de l'utilisateur "ssgueye" par Tag
+
+GET http://localhost:8080/api/events/filter/tag/ssgueye?tag=FROID
+````
+
+- **Pour calculer la fréquence d'une étiquette dans une fenêtre de temps donnée**
+
+```http request
+GET http://localhost:8080/api/events/frequency/tag/{{pseudo}}?tag={{tag}}&startDate={{startDate}}&endDate={{endDate}}
+````
+```http request
+## Exemple: Fréquence de l'étiquette 'FROID' dans l'intervalle de temps [2022-09-01T20:00;2022-12-01T12:00]
+
+GET http://localhost:8080/api/events/frequency/tag/ssgueye?label=FROID&startDate=2022-09-01T20:00&endDate=2022-12-01T12:00:00
+````
+
 - **Pour modifier un event**
 
 ```http request

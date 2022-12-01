@@ -11,6 +11,4 @@ import java.util.Optional;
 @Repository
 public interface TagRepository extends JpaRepository<TagEntity,Long> {
 
-    @Query("SELECT tag FROM TagEntity tag WHERE tag.label = ?1 AND tag.event.id_event = ?2")
-    Optional<TagEntity> getTagByLabelAndEventId(String label, Long id_event);
 }
