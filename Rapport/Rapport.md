@@ -33,6 +33,12 @@ Cette application utilise le framework [Spring Boot](https://spring.io/projects/
   ```shell
   $ ./mvnw test
   ```
+- Pour générer les couvertures de test :
+  ```shell
+   $ ./mvnw surefire-report:report
+  ````
+
+_Un rapport au format HTML est normalement généré dans `${basedir}/target/site/surefire-report.html`._
 
 ## II. Architecture générale <a name ="architecture"></a>
 
@@ -283,6 +289,7 @@ GET http://localhost:8080/api/events/one?pseudo=ssgueye&serie_id=1&event_id=1
 ```http request
 GET http://localhost:8080/api/events/filter/tag/{{pseudo}}?label={{label}}
 ````
+
 ```http request
 ## Exemple: Filtrer les events de l'utilisateur "ssgueye" par Tag
 
@@ -294,6 +301,7 @@ GET http://localhost:8080/api/events/filter/tag/ssgueye?tag=FROID
 ```http request
 GET http://localhost:8080/api/events/frequency/tag/{{pseudo}}?tag={{tag}}&startDate={{startDate}}&endDate={{endDate}}
 ````
+
 ```http request
 ## Exemple: Fréquence de l'étiquette 'FROID' dans l'intervalle de temps [2022-09-01T20:00;2022-12-01T12:00]
 
@@ -346,7 +354,7 @@ POST http://localhost:8080/api/tags/add?pseudo=ssgueye&serieId=1&eventId=1
 Content-Type: application/json
 
 {
-  "label": "Nuageux"
+  "label": "Froid"
 }
 ```
 
@@ -375,7 +383,7 @@ PUT http://localhost:8080/api/tags/update?pseudo=ssgueye&serieId=1&eventId=1&tag
 Content-Type: application/json
 
 {
-  "label": "basket ball"
+  "label": "Nuageux"
 }
 ```
 
@@ -425,14 +433,18 @@ Accept:application/xml
 ```
 
 #### C. Requêtes conditionnelles <a name ="rc"></a>
+
 Dans le dossier `config`, se trouve le fichier qui fait la configuration des Etags, nous avons placé les Etags dans les séries, les events et les userSeries.
 Un exemple d'utilisation de l'Etag:
+
 ```http request
 ## Requête pour lister toutes les séries créées par l'utilisateur "ssgueye"
 
 GET http://localhost:8080/api/series/OwnSeries/ssgueye
 ```
+
 Quand on appelle cette requête pour la première fois, on a cet en-tête de réponse  avec le body correspondant :
+
 ```http request
 HTTP/1.1 200 
 ETag: "0c772c0ef852e0d40b3b749d088400276"
@@ -451,14 +463,18 @@ Connection: keep-alive
   }
 ]
 ```
+
 Et si on place dans le header la requête conditionnelle `If-Non-Match : "0c772c0ef852e0d40b3b749d088400276"` comme ceci :
+
 ```http request
 ## Requête pour lister toutes les séries créées par l'utilisateur "ssgueye"
 
 GET http://localhost:8080/api/series/OwnSeries/ssgueye
 If-None-Match: "0c772c0ef852e0d40b3b749d088400276"
 ```
-On aura un code de réponse de type `304 Not Modifed`
+
+On aura un code de réponse de type `304 Not Modified`
+
 ```http request
 HTTP/1.1 304 
 ETag: "0c772c0ef852e0d40b3b749d088400276"
@@ -468,4 +484,5 @@ Connection: keep-alive
 
 <Response body is empty>
 ```
+
 Cela signifie que la ressource n'a pas été modifié. Et Si elle est modifiée, un autre Etag va être généré.
