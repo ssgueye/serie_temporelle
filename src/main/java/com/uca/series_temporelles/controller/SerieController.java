@@ -1,22 +1,12 @@
 package com.uca.series_temporelles.controller;
 
-import com.uca.series_temporelles.entity.EventEntity;
 import com.uca.series_temporelles.entity.SerieEntity;
 import com.uca.series_temporelles.model.Serie;
 import com.uca.series_temporelles.service.SerieService;
-import org.springframework.data.util.StreamUtils;
-import org.springframework.http.CacheControl;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
-import java.time.Duration;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("api/series")

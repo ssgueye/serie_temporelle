@@ -23,20 +23,14 @@ public class EventService {
 
     private final EventRepository eventRepository;
     private final SerieRepository serieRepository;
-    private final SerieService serieService;
     private final UserSerieRepository userSerieRepository;
-    private final UserSerieService userSerieService;
 
     public EventService(EventRepository eventRepository,
                         SerieRepository serieRepository,
-                        UserSerieRepository userSerieRepository,
-                        UserSerieService userSerieService,
-                        SerieService serieService) {
+                        UserSerieRepository userSerieRepository) {
         this.eventRepository = eventRepository;
         this.serieRepository = serieRepository;
         this.userSerieRepository = userSerieRepository;
-        this.userSerieService = userSerieService;
-        this.serieService = serieService;
     }
 
     public Iterable<EventEntity> getAllEventsForAGivenSerie(String pseudo, Long serie_id){
@@ -188,16 +182,6 @@ public class EventService {
         }catch (EmptyResultDataAccessException e){
             // We can safely Ignore this
         }
-    }
-
-    private EventEntity toEventEntity(Event event){
-        EventEntity entity = new EventEntity();
-        entity.event_date = event.event_date;
-        entity.comment = event.comment;
-        entity.serie = userSerieService.toSerieEntity(event.serie);
-        entity.lastUpdatedDate = event.lastUpdatedDate;
-
-        return entity;
     }
 
 

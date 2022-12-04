@@ -8,7 +8,7 @@ public enum Permission {
     @JsonProperty("READONLY")
     READONLY("R");
 
-    private String privilegeAcronym;
+    private final String privilegeAcronym;
 
     Permission(String privilegeAcronym) {
         this.privilegeAcronym = privilegeAcronym;
@@ -17,6 +17,5 @@ public enum Permission {
     public String getPrivilegeAcronym() {
         return privilegeAcronym;
     }
-
 
 }

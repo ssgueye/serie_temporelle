@@ -7,7 +7,6 @@ import com.uca.series_temporelles.enumerations.Permission;
 import com.uca.series_temporelles.exception.NoAccessDataException;
 import com.uca.series_temporelles.exception.ResourceNotFoundException;
 import com.uca.series_temporelles.model.Tag;
-import com.uca.series_temporelles.repository.AppUserRepository;
 import com.uca.series_temporelles.repository.EventRepository;
 import com.uca.series_temporelles.repository.TagRepository;
 import com.uca.series_temporelles.repository.UserSerieRepository;

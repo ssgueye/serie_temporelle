@@ -50,9 +50,7 @@ public class UserSerieService {
 
     public UserSerieEntity getOne(String pseudo, Long serie_id){
 
-        UserSerieEntity userSerie = userSerieRepository.getUserSerieEntityByUserPseudoAndSerieId(pseudo, serie_id);
-
-        return userSerie;
+        return userSerieRepository.getUserSerieEntityByUserPseudoAndSerieId(pseudo, serie_id);
     }
 
     public UserSerieEntity shareSerie(Long serie_id,
