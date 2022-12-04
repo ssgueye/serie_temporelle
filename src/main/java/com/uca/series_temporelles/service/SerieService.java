@@ -1,9 +1,6 @@
 package com.uca.series_temporelles.service;
 
-import com.uca.series_temporelles.entity.AppUserEntity;
-import com.uca.series_temporelles.entity.EventEntity;
-import com.uca.series_temporelles.entity.SerieEntity;
-import com.uca.series_temporelles.entity.UserSerieEntity;
+import com.uca.series_temporelles.entity.*;
 import com.uca.series_temporelles.enumerations.Permission;
 import com.uca.series_temporelles.exception.NoAccessDataException;
 import com.uca.series_temporelles.exception.ResourceNotFoundException;
@@ -11,6 +8,7 @@ import com.uca.series_temporelles.model.Serie;
 import com.uca.series_temporelles.model.UserSerie;
 import com.uca.series_temporelles.repository.EventRepository;
 import com.uca.series_temporelles.repository.SerieRepository;
+import com.uca.series_temporelles.repository.TagRepository;
 import com.uca.series_temporelles.repository.UserSerieRepository;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.util.StreamUtils;
@@ -28,16 +26,17 @@ public class SerieService {
     private final UserSerieService userSerieService;
     private final SerieRepository serieRepository;
     private final EventRepository eventRepository;
+    private final TagRepository tagRepository;
 
     public SerieService(AppUserService appUserService, UserSerieRepository userSerieRepository,
-                        UserSerieService userSerieService,
-                        SerieRepository serieRepository,
-                        EventRepository eventRepository) {
+                        UserSerieService userSerieService, SerieRepository serieRepository,
+                        EventRepository eventRepository, TagRepository tagRepository) {
         this.appUserService = appUserService;
         this.userSerieRepository = userSerieRepository;
         this.userSerieService = userSerieService;
         this.serieRepository = serieRepository;
         this.eventRepository = eventRepository;
+        this.tagRepository = tagRepository;
     }
 
     public Iterable<SerieEntity> getAllSeries(String pseudo_user){
@@ -45,7 +44,6 @@ public class SerieService {
         return StreamUtils.createStreamFromIterator(
                 serieRepository.getAllSeriesByPseudo(pseudo_user).iterator()).collect(Collectors.toList()
         );
-
     }
 
     public Iterable<SerieEntity> getAllOwnSeries(String pseudo_user){
@@ -107,18 +105,18 @@ public class SerieService {
     //only the owner's Serie can delete his serie
     public void deleteSerie(Long serie_id, String pseudo){
         try {
+            Assert.notNull(serie_id, "serieID can not be null");
+            Assert.hasText(pseudo, "pseudo can not be null/empty/blank");
             UserSerieEntity userSerie = userSerieRepository.getUserSerieEntityByUserPseudoAndSerieId(pseudo, serie_id);
             Assert.notNull(userSerie, "UserSerie can not be null");
             if(userSerie.isOwner){
-
-                //Deletion order is important HERE
-
+                //L'ORDRE DE SUPPRESSION EST IMPORTANTE
                 Iterable<UserSerieEntity> userSerieEntities = userSerieRepository.getAllUserSeriesBySerieId(serie_id);
                 userSerieRepository.deleteAll(userSerieEntities);
-
+                Iterable<TagEntity> tags = tagRepository.getTagsBySerieId(serie_id);
+                tagRepository.deleteAll(tags);
                 Iterable<EventEntity> eventsToDelete = eventRepository.getAllEventsBySerieId(serie_id);
                 eventRepository.deleteAll(eventsToDelete);
-
                 serieRepository.deleteById(serie_id);
             }
             else {
@@ -132,8 +130,8 @@ public class SerieService {
 
     public Serie toSerie(SerieEntity serie){
         Assert.notNull(serie, "Serie can not be null");
-
         return new Serie(serie.title, serie.description);
     }
+
 
 }

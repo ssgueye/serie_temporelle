@@ -114,6 +114,12 @@ class AppUserServiceTest {
         var arg = captor.getValue();
         assertThat(arg.pseudo).isEqualTo("saliou");
     }
+
+    @Test
+    void convertEntityToUser(){
+        assertThat(appUserService.toUser(newUserEntity("dapieu")));
+    }
+
     private static AppUserEntity newUserEntity(String pseudo){
         AppUserEntity entity = new AppUserEntity();
         entity.pseudo = pseudo;

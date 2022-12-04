@@ -26,6 +26,7 @@ public class Event{
     public Event(LocalDateTime event_date,
                  Double value,
                  String comment) {
+        Assert.notNull(event_date, "event_date can not be null");
         Assert.notNull(value, "An event should have a value");
         this.value = value;
         this.comment = comment;

@@ -10,6 +10,7 @@ import java.net.URI;
 
 @RestController
 @RequestMapping("api/tags")
+@CrossOrigin(origins = "*")
 public class TagController {
 
     private final TagService tagService;

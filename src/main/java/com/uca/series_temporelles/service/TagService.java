@@ -38,7 +38,7 @@ public class TagService {
 
             if(userSerieEntity.isOwner || userSerieEntity.permission.equals(Permission.WRITE_READ)){
                 return StreamUtils.createStreamFromIterator(tagRepository
-                        .findAll().iterator())
+                        .getTagByEventId(serie_id).iterator())
                         .collect(Collectors.toList());
             }
             else {
@@ -63,7 +63,7 @@ public class TagService {
 
             }
             else {
-                throw new NoAccessDataException("User "+pseudo+" does not have the permission to access to this data");
+                throw new NoAccessDataException("User "+pseudo+" does not have the permission to add a Tag in this event");
             }
         }
         else {

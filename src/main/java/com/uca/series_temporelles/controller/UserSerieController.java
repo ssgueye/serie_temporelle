@@ -11,6 +11,7 @@ import java.net.URI;
 
 @RestController
 @RequestMapping("api/user_series")
+@CrossOrigin(origins = "*")
 public class UserSerieController {
 
     private final UserSerieService userSerieService;

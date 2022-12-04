@@ -85,16 +85,16 @@ public class EventService {
 
     public Iterable<EventEntity> FilterEventsByTag(String pseudo,String label_tag){
         Assert.hasText(pseudo, "pseudo can not be null/empty/blank");
-        Assert.notNull(label_tag, "label_tag can not be null/empty/blank");
+        Assert.hasText(label_tag, "label_tag can not be null/empty/blank");
 
             return StreamUtils.createStreamFromIterator(eventRepository.FilterEventsByTag(label_tag.toUpperCase(), pseudo).iterator()).collect(Collectors.toList());
     }
 
     public Integer TagFrequencyByDateRange(String label, String pseudo, LocalDateTime start_date, LocalDateTime end_date){
         Assert.hasText(pseudo, "pseudo can not be null/empty/blank");
-        Assert.notNull(label, "label can not be null/empty/blank");
+        Assert.hasText(label, "label can not be null/empty/blank");
 
-        return StreamUtils.createStreamFromIterator(eventRepository.getTagFrequencyByEventDateRange(label, pseudo, start_date, end_date).iterator()).collect(Collectors.toList()).size();
+        return StreamUtils.createStreamFromIterator(eventRepository.getTagFrequencyByEventDateRange(label.toUpperCase(), pseudo, start_date, end_date).iterator()).collect(Collectors.toList()).size();
     }
 
 
@@ -152,12 +152,12 @@ public class EventService {
 
             }
             else{
-                throw new NoAccessDataException("Can not access to the Serie "+serie_id);
+                throw new NoAccessDataException("Doesn't have the rights to update events in Serie "+serie_id);
             }
 
         }
         else{
-            throw new NoAccessDataException("Can not access to the event "+event_id);
+            throw new NoAccessDataException("Doesn't have the rights to update events in Serie "+event_id);
         }
 
     }
@@ -177,7 +177,7 @@ public class EventService {
                     serieRepository.save(serie);
                 }
                 else {
-                    throw new NoAccessDataException("Can not access to the Serie "+serie_id);
+                    throw new NoAccessDataException("Only the Owner can delete this Serie "+serie_id);
                 }
             }
             else {

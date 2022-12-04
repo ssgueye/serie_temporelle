@@ -1,17 +1,26 @@
 package com.uca.series_temporelles.controller;
 
+import com.uca.series_temporelles.entity.EventEntity;
 import com.uca.series_temporelles.entity.SerieEntity;
 import com.uca.series_temporelles.model.Serie;
 import com.uca.series_temporelles.service.SerieService;
+import org.springframework.data.util.StreamUtils;
 import org.springframework.http.CacheControl;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("api/series")
+@CrossOrigin(origins = "*")
 public class SerieController {
 
     private final SerieService serieService;
@@ -22,23 +31,26 @@ public class SerieController {
 
     @GetMapping("OwnSeries/{pseudo}")
     public ResponseEntity<Iterable<SerieEntity>> getAllOwnSeries(@PathVariable String pseudo){
+        Iterable<SerieEntity> series = serieService.getAllOwnSeries(pseudo);
         return ResponseEntity.ok()
                 .header("Cache-Control", "no-cache, max-age=60, must-revalidate")
-                .body(serieService.getAllOwnSeries(pseudo));
+                .body(series);
     }
 
     @GetMapping("sharedSeries/{pseudo}")
     public ResponseEntity<Iterable<SerieEntity>> getAllSharedSeries(@PathVariable String pseudo){
+        Iterable<SerieEntity> series = serieService.getAllSharedSeries(pseudo);
         return ResponseEntity.ok()
                 .header("Cache-Control", "no-cache, max-age=60, must-revalidate")
-                .body(serieService.getAllSharedSeries(pseudo));
+                .body(series);
     }
 
     @GetMapping("/{pseudo}")
     public ResponseEntity<Iterable<SerieEntity>> getAllSeries(@PathVariable String pseudo){
+        Iterable<SerieEntity> series = serieService.getAllSeries(pseudo);
         return ResponseEntity.ok()
                 .header("Cache-Control", "no-cache, max-age=60, must-revalidate")
-                .body(serieService.getAllSeries(pseudo));
+                .body(series);
     }
 
     @PostMapping("add/{pseudo}")
@@ -78,4 +90,5 @@ public class SerieController {
 
         return ResponseEntity.noContent().build();
     }
+
 }
