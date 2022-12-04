@@ -1,9 +1,6 @@
 package com.uca.series_temporelles.service;
 
-import com.uca.series_temporelles.entity.AppUserEntity;
-import com.uca.series_temporelles.entity.EventEntity;
-import com.uca.series_temporelles.entity.SerieEntity;
-import com.uca.series_temporelles.entity.UserSerieEntity;
+import com.uca.series_temporelles.entity.*;
 import com.uca.series_temporelles.enumerations.Permission;
 import com.uca.series_temporelles.exception.NoAccessDataException;
 import com.uca.series_temporelles.model.AppUser;
@@ -11,6 +8,7 @@ import com.uca.series_temporelles.model.Serie;
 import com.uca.series_temporelles.model.UserSerie;
 import com.uca.series_temporelles.repository.EventRepository;
 import com.uca.series_temporelles.repository.SerieRepository;
+import com.uca.series_temporelles.repository.TagRepository;
 import com.uca.series_temporelles.repository.UserSerieRepository;
 import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.Nested;
@@ -46,6 +44,8 @@ public class SerieServiceTest {
     EventRepository eventRepository;
     @Mock
     UserSerieService userSerieService;
+    @Mock
+    TagRepository tagRepository;
 
     private final static LocalDateTime date = LocalDateTime.of(2022, 12, 2, 19, 59);
 
@@ -256,12 +256,20 @@ public class SerieServiceTest {
                     newEventEntity(2L, date, 4D, null, date, serieEntity),
                     newEventEntity(3L, date, 10D, null, date, serieEntity),
             };
+            EventEntity event = newEventEntity(1L, date, 3D, null, date, serieEntity);
+            var tags = new TagEntity[]{
+                    newTagEntity(1L, "FROID", event),
+                    newTagEntity(2L, "FROID", event),
+                    newTagEntity(3L, "NUAGEUX", event),
+            };
 
             when(userSerieRepository.getUserSerieEntityByUserPseudoAndSerieId(any(), any()))
                     .thenReturn(newUserSerieEntity(1L, Permission.WRITE_READ, true, serieEntity, user));
             when(userSerieRepository.getAllUserSeriesBySerieId(any()))
                     .thenReturn(Arrays.asList(userSerieEntities));
             userSerieRepository.deleteAll(Arrays.asList(userSerieEntities));
+            when(tagRepository.getTagsBySerieId(any())).thenReturn(Arrays.asList(tags));
+            tagRepository.deleteAll(Arrays.asList(tags));
             when(eventRepository.getAllEventsBySerieId(1L)).thenReturn(Arrays.asList(events));
             eventRepository.deleteAll(Arrays.asList(events));
             serieRepository.deleteById(1L);
@@ -325,5 +333,13 @@ public class SerieServiceTest {
         event.serie = serie;
 
         return event;
+    }
+
+    private TagEntity newTagEntity(Long id, String label, EventEntity event){
+        TagEntity tag = new TagEntity();
+        tag.id = id;
+        tag.label = label;
+        tag.event = event;
+        return tag;
     }
 }
