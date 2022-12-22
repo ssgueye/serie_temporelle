@@ -1,0 +1,309 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <title>Coverage Report > EventService</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/highlight-idea.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.pack.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">com.uca.series_temporelles.service</a>
+</div>
+
+<h1>Coverage Summary for Class: EventService (com.uca.series_temporelles.service)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">EventService</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    66,7%
+  </span>
+  <span class="absValue">
+    (6/9)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    38,8%
+  </span>
+  <span class="absValue">
+    (31/80)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<div class="sourceCode" id="sourceCode"><i class="no-highlight">1</i>&nbsp;package com.uca.series_temporelles.service;
+<i class="no-highlight">2</i>&nbsp;
+<i class="no-highlight">3</i>&nbsp;import com.uca.series_temporelles.entity.EventEntity;
+<i class="no-highlight">4</i>&nbsp;import com.uca.series_temporelles.entity.SerieEntity;
+<i class="no-highlight">5</i>&nbsp;import com.uca.series_temporelles.entity.UserSerieEntity;
+<i class="no-highlight">6</i>&nbsp;import com.uca.series_temporelles.enumerations.Permission;
+<i class="no-highlight">7</i>&nbsp;import com.uca.series_temporelles.exception.NoAccessDataException;
+<i class="no-highlight">8</i>&nbsp;import com.uca.series_temporelles.exception.ResourceNotFoundException;
+<i class="no-highlight">9</i>&nbsp;import com.uca.series_temporelles.model.Event;
+<i class="no-highlight">10</i>&nbsp;import com.uca.series_temporelles.repository.EventRepository;
+<i class="no-highlight">11</i>&nbsp;import com.uca.series_temporelles.repository.SerieRepository;
+<i class="no-highlight">12</i>&nbsp;import com.uca.series_temporelles.repository.UserSerieRepository;
+<i class="no-highlight">13</i>&nbsp;import org.springframework.dao.EmptyResultDataAccessException;
+<i class="no-highlight">14</i>&nbsp;import org.springframework.data.util.StreamUtils;
+<i class="no-highlight">15</i>&nbsp;import org.springframework.stereotype.Service;
+<i class="no-highlight">16</i>&nbsp;import org.springframework.util.Assert;
+<i class="no-highlight">17</i>&nbsp;
+<i class="no-highlight">18</i>&nbsp;import java.time.LocalDateTime;
+<i class="no-highlight">19</i>&nbsp;import java.util.stream.Collectors;
+<i class="no-highlight">20</i>&nbsp;
+<i class="no-highlight">21</i>&nbsp;@Service
+<i class="no-highlight">22</i>&nbsp;public class EventService {
+<i class="no-highlight">23</i>&nbsp;
+<i class="no-highlight">24</i>&nbsp;    private final EventRepository eventRepository;
+<i class="no-highlight">25</i>&nbsp;    private final SerieRepository serieRepository;
+<i class="no-highlight">26</i>&nbsp;    private final SerieService serieService;
+<i class="no-highlight">27</i>&nbsp;    private final UserSerieRepository userSerieRepository;
+<i class="no-highlight">28</i>&nbsp;    private final UserSerieService userSerieService;
+<i class="no-highlight">29</i>&nbsp;
+<i class="no-highlight">30</i>&nbsp;    public EventService(EventRepository eventRepository,
+<i class="no-highlight">31</i>&nbsp;                        SerieRepository serieRepository,
+<i class="no-highlight">32</i>&nbsp;                        UserSerieRepository userSerieRepository,
+<i class="no-highlight">33</i>&nbsp;                        UserSerieService userSerieService,
+<b class="fc"><i class="no-highlight">34</i>&nbsp;                        SerieService serieService) {</b>
+<b class="fc"><i class="no-highlight">35</i>&nbsp;        this.eventRepository = eventRepository;</b>
+<b class="fc"><i class="no-highlight">36</i>&nbsp;        this.serieRepository = serieRepository;</b>
+<b class="fc"><i class="no-highlight">37</i>&nbsp;        this.userSerieRepository = userSerieRepository;</b>
+<b class="fc"><i class="no-highlight">38</i>&nbsp;        this.userSerieService = userSerieService;</b>
+<b class="fc"><i class="no-highlight">39</i>&nbsp;        this.serieService = serieService;</b>
+<i class="no-highlight">40</i>&nbsp;    }
+<i class="no-highlight">41</i>&nbsp;
+<i class="no-highlight">42</i>&nbsp;    public Iterable&lt;EventEntity&gt; getAllEventsForAGivenSerie(String pseudo, Long serie_id){
+<i class="no-highlight">43</i>&nbsp;
+<b class="fc"><i class="no-highlight">44</i>&nbsp;        Assert.hasText(pseudo, &quot;pseudo can not be null/empty/blank&quot;);</b>
+<b class="fc"><i class="no-highlight">45</i>&nbsp;        Assert.notNull(serie_id, &quot;serie_id can not be null&quot;);</b>
+<i class="no-highlight">46</i>&nbsp;
+<b class="fc"><i class="no-highlight">47</i>&nbsp;        UserSerieEntity userSerieEntity = userSerieRepository.getUserSerieEntityByUserPseudoAndSerieId(pseudo, serie_id);</b>
+<i class="no-highlight">48</i>&nbsp;        //make sure that the User that has been linked to the Serie, only can see the list of events for that serie
+<b class="fc"><i class="no-highlight">49</i>&nbsp;        if(userSerieEntity != null){</b>
+<b class="fc"><i class="no-highlight">50</i>&nbsp;            return StreamUtils.createStreamFromIterator(eventRepository.getAllEventsBySerieId(serie_id).iterator()).collect(Collectors.toList());</b>
+<i class="no-highlight">51</i>&nbsp;        }
+<i class="no-highlight">52</i>&nbsp;        else{
+<b class="fc"><i class="no-highlight">53</i>&nbsp;            throw new NoAccessDataException(&quot;Can not access to the Serie &quot;+serie_id);</b>
+<i class="no-highlight">54</i>&nbsp;        }
+<i class="no-highlight">55</i>&nbsp;
+<i class="no-highlight">56</i>&nbsp;    }
+<i class="no-highlight">57</i>&nbsp;
+<i class="no-highlight">58</i>&nbsp;    public EventEntity getOne(String pseudo, Long serie_id, Long event_id){
+<i class="no-highlight">59</i>&nbsp;
+<b class="fc"><i class="no-highlight">60</i>&nbsp;        Assert.hasText(pseudo, &quot;pseudo can not be null/empty/blank&quot;);</b>
+<b class="fc"><i class="no-highlight">61</i>&nbsp;        Assert.notNull(serie_id, &quot;serie_id can not be null&quot;);</b>
+<b class="fc"><i class="no-highlight">62</i>&nbsp;        Assert.notNull(event_id, &quot;event_id can not be null&quot;);</b>
+<i class="no-highlight">63</i>&nbsp;
+<b class="fc"><i class="no-highlight">64</i>&nbsp;        EventEntity event = eventRepository.findById(event_id).orElseThrow(()-&gt; new ResourceNotFoundException(&quot;Resource Not found&quot;));</b>
+<i class="no-highlight">65</i>&nbsp;        //Make sure the event that the user want to update belongs to that serie
+<b class="fc"><i class="no-highlight">66</i>&nbsp;        if(event.serie.id_serie.equals(serie_id)){</b>
+<i class="no-highlight">67</i>&nbsp;
+<i class="no-highlight">68</i>&nbsp;            //Make sure that the user is linked to that serie
+<b class="fc"><i class="no-highlight">69</i>&nbsp;            UserSerieEntity userSerieEntity = userSerieRepository.getUserSerieEntityByUserPseudoAndSerieId(pseudo, serie_id);</b>
+<i class="no-highlight">70</i>&nbsp;            //Make sure that the user has the permission to update the event
+<b class="fc"><i class="no-highlight">71</i>&nbsp;            if(userSerieEntity!=null){</b>
+<i class="no-highlight">72</i>&nbsp;
+<b class="fc"><i class="no-highlight">73</i>&nbsp;                return event;</b>
+<i class="no-highlight">74</i>&nbsp;
+<i class="no-highlight">75</i>&nbsp;            }
+<i class="no-highlight">76</i>&nbsp;            else{
+<b class="fc"><i class="no-highlight">77</i>&nbsp;                throw new NoAccessDataException(&quot;Can not access to the Serie &quot;+serie_id);</b>
+<i class="no-highlight">78</i>&nbsp;            }
+<i class="no-highlight">79</i>&nbsp;
+<i class="no-highlight">80</i>&nbsp;        }
+<i class="no-highlight">81</i>&nbsp;        else{
+<b class="fc"><i class="no-highlight">82</i>&nbsp;            throw new NoAccessDataException(&quot;Can not access to the event &quot;+event_id);</b>
+<i class="no-highlight">83</i>&nbsp;        }
+<i class="no-highlight">84</i>&nbsp;    }
+<i class="no-highlight">85</i>&nbsp;
+<i class="no-highlight">86</i>&nbsp;    public Iterable&lt;EventEntity&gt; FilterEventsByTag(String pseudo,String label_tag){
+<b class="fc"><i class="no-highlight">87</i>&nbsp;        Assert.hasText(pseudo, &quot;pseudo can not be null/empty/blank&quot;);</b>
+<b class="fc"><i class="no-highlight">88</i>&nbsp;        Assert.hasText(label_tag, &quot;label_tag can not be null/empty/blank&quot;);</b>
+<i class="no-highlight">89</i>&nbsp;
+<b class="fc"><i class="no-highlight">90</i>&nbsp;            return StreamUtils.createStreamFromIterator(eventRepository.FilterEventsByTag(label_tag.toUpperCase(), pseudo).iterator()).collect(Collectors.toList());</b>
+<i class="no-highlight">91</i>&nbsp;    }
+<i class="no-highlight">92</i>&nbsp;
+<i class="no-highlight">93</i>&nbsp;    public Integer TagFrequencyByDateRange(String label, String pseudo, LocalDateTime start_date, LocalDateTime end_date){
+<b class="fc"><i class="no-highlight">94</i>&nbsp;        Assert.hasText(pseudo, &quot;pseudo can not be null/empty/blank&quot;);</b>
+<b class="fc"><i class="no-highlight">95</i>&nbsp;        Assert.hasText(label, &quot;label can not be null/empty/blank&quot;);</b>
+<i class="no-highlight">96</i>&nbsp;
+<b class="fc"><i class="no-highlight">97</i>&nbsp;        return StreamUtils.createStreamFromIterator(eventRepository.getTagFrequencyByEventDateRange(label, pseudo, start_date, end_date).iterator()).collect(Collectors.toList()).size();</b>
+<i class="no-highlight">98</i>&nbsp;    }
+<i class="no-highlight">99</i>&nbsp;
+<i class="no-highlight">100</i>&nbsp;
+<i class="no-highlight">101</i>&nbsp;    public EventEntity addEventToSerie(String pseudo, Long serie_id, Event event){
+<i class="no-highlight">102</i>&nbsp;
+<b class="fc"><i class="no-highlight">103</i>&nbsp;        Assert.hasText(pseudo, &quot;pseudo can not be null/empty/blank&quot;);</b>
+<b class="fc"><i class="no-highlight">104</i>&nbsp;        Assert.notNull(serie_id, &quot;serie_id can not be null&quot;);</b>
+<b class="fc"><i class="no-highlight">105</i>&nbsp;        Assert.notNull(event, &quot;event can not be null&quot;);</b>
+<i class="no-highlight">106</i>&nbsp;
+<b class="nc"><i class="no-highlight">107</i>&nbsp;        UserSerieEntity userSerieEntity = userSerieRepository.getUserSerieEntityByUserPseudoAndSerieId(pseudo, serie_id);</b>
+<i class="no-highlight">108</i>&nbsp;
+<b class="nc"><i class="no-highlight">109</i>&nbsp;        if(userSerieEntity.isOwner || userSerieEntity.permission.equals(Permission.WRITE_READ)){</b>
+<b class="nc"><i class="no-highlight">110</i>&nbsp;            SerieEntity serie = serieRepository.findById(serie_id).orElseThrow(()-&gt; new ResourceNotFoundException(&quot;Ressource not found&quot;));</b>
+<i class="no-highlight">111</i>&nbsp;            //Update the lastUpdatedDate for the serie
+<b class="nc"><i class="no-highlight">112</i>&nbsp;            EventEntity newEvent = new EventEntity();</b>
+<b class="nc"><i class="no-highlight">113</i>&nbsp;            newEvent.event_date = event.event_date;</b>
+<b class="nc"><i class="no-highlight">114</i>&nbsp;            newEvent.value = event.value;</b>
+<b class="nc"><i class="no-highlight">115</i>&nbsp;            newEvent.comment = event.comment;</b>
+<b class="nc"><i class="no-highlight">116</i>&nbsp;            newEvent.lastUpdatedDate = event.lastUpdatedDate;</b>
+<b class="nc"><i class="no-highlight">117</i>&nbsp;            newEvent.serie = serie;</b>
+<b class="nc"><i class="no-highlight">118</i>&nbsp;            serie.lastUpdatedDate = event.lastUpdatedDate;</b>
+<i class="no-highlight">119</i>&nbsp;
+<b class="nc"><i class="no-highlight">120</i>&nbsp;            return eventRepository.save(newEvent);</b>
+<i class="no-highlight">121</i>&nbsp;        }
+<i class="no-highlight">122</i>&nbsp;        else{
+<b class="nc"><i class="no-highlight">123</i>&nbsp;            throw new NoAccessDataException(&quot;Can not access to the Serie &quot;+serie_id);</b>
+<i class="no-highlight">124</i>&nbsp;        }
+<i class="no-highlight">125</i>&nbsp;    }
+<i class="no-highlight">126</i>&nbsp;
+<i class="no-highlight">127</i>&nbsp;    public EventEntity updateEvent(String pseudo, Long serie_id, Long event_id, Event event){
+<i class="no-highlight">128</i>&nbsp;
+<b class="nc"><i class="no-highlight">129</i>&nbsp;        Assert.hasText(pseudo, &quot;pseudo can not be null/empty/blank&quot;);</b>
+<b class="nc"><i class="no-highlight">130</i>&nbsp;        Assert.notNull(serie_id, &quot;serie_id can not be null&quot;);</b>
+<b class="nc"><i class="no-highlight">131</i>&nbsp;        Assert.notNull(event_id, &quot;event_id can not be null&quot;);</b>
+<b class="nc"><i class="no-highlight">132</i>&nbsp;        Assert.notNull(event, &quot;event can not be null&quot;);</b>
+<i class="no-highlight">133</i>&nbsp;
+<b class="nc"><i class="no-highlight">134</i>&nbsp;        EventEntity updatedEvent = eventRepository.findById(event_id).orElseThrow(()-&gt; new ResourceNotFoundException(&quot;Resource Not found&quot;));</b>
+<i class="no-highlight">135</i>&nbsp;        //Make sure the event that the user want to update belongs to that serie
+<b class="nc"><i class="no-highlight">136</i>&nbsp;        if(updatedEvent.serie.id_serie.equals(serie_id)){</b>
+<i class="no-highlight">137</i>&nbsp;
+<i class="no-highlight">138</i>&nbsp;            //Make sure that the user is linked to that serie
+<b class="nc"><i class="no-highlight">139</i>&nbsp;            UserSerieEntity userSerieEntity = userSerieRepository.getUserSerieEntityByUserPseudoAndSerieId(pseudo, serie_id);</b>
+<i class="no-highlight">140</i>&nbsp;            //Make sure that the user has the permission to update the event
+<b class="nc"><i class="no-highlight">141</i>&nbsp;            if(userSerieEntity.isOwner || userSerieEntity.permission.equals(Permission.WRITE_READ)){</b>
+<b class="nc"><i class="no-highlight">142</i>&nbsp;                updatedEvent.event_date = event.event_date;</b>
+<b class="nc"><i class="no-highlight">143</i>&nbsp;                updatedEvent.value = event.value;</b>
+<b class="nc"><i class="no-highlight">144</i>&nbsp;                updatedEvent.comment = event.comment;</b>
+<b class="nc"><i class="no-highlight">145</i>&nbsp;                updatedEvent.lastUpdatedDate = LocalDateTime.now();</b>
+<i class="no-highlight">146</i>&nbsp;
+<i class="no-highlight">147</i>&nbsp;                //Change lastUpdatedDate for the serie
+<b class="nc"><i class="no-highlight">148</i>&nbsp;                SerieEntity updatedSerie = serieRepository.findById(serie_id).orElseThrow(()-&gt; new ResourceNotFoundException(&quot;Resource Not found&quot;));</b>
+<b class="nc"><i class="no-highlight">149</i>&nbsp;                updatedSerie.lastUpdatedDate = updatedEvent.lastUpdatedDate;</b>
+<i class="no-highlight">150</i>&nbsp;
+<b class="nc"><i class="no-highlight">151</i>&nbsp;                return eventRepository.save(updatedEvent);</b>
+<i class="no-highlight">152</i>&nbsp;
+<i class="no-highlight">153</i>&nbsp;            }
+<i class="no-highlight">154</i>&nbsp;            else{
+<b class="nc"><i class="no-highlight">155</i>&nbsp;                throw new NoAccessDataException(&quot;Can not access to the Serie &quot;+serie_id);</b>
+<i class="no-highlight">156</i>&nbsp;            }
+<i class="no-highlight">157</i>&nbsp;
+<i class="no-highlight">158</i>&nbsp;        }
+<i class="no-highlight">159</i>&nbsp;        else{
+<b class="nc"><i class="no-highlight">160</i>&nbsp;            throw new NoAccessDataException(&quot;Can not access to the event &quot;+event_id);</b>
+<i class="no-highlight">161</i>&nbsp;        }
+<i class="no-highlight">162</i>&nbsp;
+<i class="no-highlight">163</i>&nbsp;    }
+<i class="no-highlight">164</i>&nbsp;
+<i class="no-highlight">165</i>&nbsp;    public void delete(String pseudo, Long serie_id, Long event_id){
+<i class="no-highlight">166</i>&nbsp;
+<i class="no-highlight">167</i>&nbsp;        try {
+<i class="no-highlight">168</i>&nbsp;
+<b class="nc"><i class="no-highlight">169</i>&nbsp;            EventEntity eventToDelete = eventRepository.findById(event_id).orElseThrow(()-&gt; new ResourceNotFoundException(&quot;Resource Not found&quot;));</b>
+<b class="nc"><i class="no-highlight">170</i>&nbsp;            if(eventToDelete.serie.id_serie.equals(serie_id)){</b>
+<b class="nc"><i class="no-highlight">171</i>&nbsp;                UserSerieEntity userSerieEntity = userSerieRepository.getUserSerieEntityByUserPseudoAndSerieId(pseudo, serie_id);</b>
+<b class="nc"><i class="no-highlight">172</i>&nbsp;                if(userSerieEntity.isOwner){</b>
+<b class="nc"><i class="no-highlight">173</i>&nbsp;                    eventRepository.delete(eventToDelete);</b>
+<i class="no-highlight">174</i>&nbsp;                    //When we delete an event, the serie that it was linked is changed, so we have to update it&#39;s lastUpdatedDate
+<b class="nc"><i class="no-highlight">175</i>&nbsp;                    SerieEntity serie = serieRepository.findById(serie_id).orElseThrow(()-&gt; new ResourceNotFoundException(&quot;Resource Not found&quot;));</b>
+<b class="nc"><i class="no-highlight">176</i>&nbsp;                    serie.lastUpdatedDate = LocalDateTime.now();</b>
+<b class="nc"><i class="no-highlight">177</i>&nbsp;                    serieRepository.save(serie);</b>
+<b class="nc"><i class="no-highlight">178</i>&nbsp;                }</b>
+<i class="no-highlight">179</i>&nbsp;                else {
+<b class="nc"><i class="no-highlight">180</i>&nbsp;                    throw new NoAccessDataException(&quot;Can not access to the Serie &quot;+serie_id);</b>
+<i class="no-highlight">181</i>&nbsp;                }
+<b class="nc"><i class="no-highlight">182</i>&nbsp;            }</b>
+<i class="no-highlight">183</i>&nbsp;            else {
+<b class="nc"><i class="no-highlight">184</i>&nbsp;                throw new NoAccessDataException(&quot;Can not access to the event &quot;+event_id);</b>
+<i class="no-highlight">185</i>&nbsp;
+<i class="no-highlight">186</i>&nbsp;            }
+<i class="no-highlight">187</i>&nbsp;
+<b class="nc"><i class="no-highlight">188</i>&nbsp;        }catch (EmptyResultDataAccessException e){</b>
+<i class="no-highlight">189</i>&nbsp;            // We can safely Ignore this
+<b class="nc"><i class="no-highlight">190</i>&nbsp;        }</b>
+<i class="no-highlight">191</i>&nbsp;    }
+<i class="no-highlight">192</i>&nbsp;
+<i class="no-highlight">193</i>&nbsp;    private EventEntity toEventEntity(Event event){
+<b class="nc"><i class="no-highlight">194</i>&nbsp;        EventEntity entity = new EventEntity();</b>
+<b class="nc"><i class="no-highlight">195</i>&nbsp;        entity.event_date = event.event_date;</b>
+<b class="nc"><i class="no-highlight">196</i>&nbsp;        entity.comment = event.comment;</b>
+<b class="nc"><i class="no-highlight">197</i>&nbsp;        entity.serie = userSerieService.toSerieEntity(event.serie);</b>
+<b class="nc"><i class="no-highlight">198</i>&nbsp;        entity.lastUpdatedDate = event.lastUpdatedDate;</b>
+<i class="no-highlight">199</i>&nbsp;
+<b class="nc"><i class="no-highlight">200</i>&nbsp;        return entity;</b>
+<i class="no-highlight">201</i>&nbsp;    }
+<i class="no-highlight">202</i>&nbsp;
+<i class="no-highlight">203</i>&nbsp;
+<i class="no-highlight">204</i>&nbsp;}
+</div>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+        var codeBlock = document.getElementById('sourceCode');
+
+        if (codeBlock) {
+            hljs.highlightBlock(codeBlock);
+        }
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2022-12-03 23:32</div>
+</div>
+</body>
+</html>

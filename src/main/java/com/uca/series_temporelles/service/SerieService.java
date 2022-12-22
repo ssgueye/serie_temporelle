@@ -10,13 +10,18 @@ import com.uca.series_temporelles.repository.EventRepository;
 import com.uca.series_temporelles.repository.SerieRepository;
 import com.uca.series_temporelles.repository.TagRepository;
 import com.uca.series_temporelles.repository.UserSerieRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.util.StreamUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
+import javax.persistence.EntityManager;
+import javax.persistence.Query;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.stream.Collectors;
+
 
 @Service
 public class SerieService {
@@ -27,6 +32,8 @@ public class SerieService {
     private final SerieRepository serieRepository;
     private final EventRepository eventRepository;
     private final TagRepository tagRepository;
+    @Autowired
+    private EntityManager entityManager;
 
     public SerieService(AppUserService appUserService, UserSerieRepository userSerieRepository,
                         UserSerieService userSerieService, SerieRepository serieRepository,
@@ -38,6 +45,8 @@ public class SerieService {
         this.eventRepository = eventRepository;
         this.tagRepository = tagRepository;
     }
+
+
 
     public Iterable<SerieEntity> getAllSeries(String pseudo_user){
 

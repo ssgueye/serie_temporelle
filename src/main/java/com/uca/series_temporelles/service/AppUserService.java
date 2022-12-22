@@ -9,6 +9,7 @@ import org.springframework.data.util.StreamUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
+import javax.persistence.EntityManager;
 import java.util.stream.Collectors;
 
 /*
@@ -27,7 +28,8 @@ public class AppUserService {
     }
 
     public Iterable<AppUserEntity> getAllUsers(){
-        return StreamUtils.createStreamFromIterator(appUserRepository.findAll().iterator()).collect(Collectors.toList());
+
+        return StreamUtils.createStreamFromIterator(appUserRepository.getAll().iterator()).collect(Collectors.toList());
     }
 
     public AppUserEntity getOne(String pseudo){
