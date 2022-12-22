@@ -10,6 +10,4 @@ import java.util.List;
 @Repository
 public interface AppUserRepository extends JpaRepository<AppUserEntity, String> {
 
-    @Query(value = "SELECT * from App_USer", nativeQuery = true)
-    Iterable<AppUserEntity> getAll();
 }
